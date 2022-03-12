@@ -1,4 +1,4 @@
-package doa;
+package dao;
 
 import entities.Administrators;
 import lombok.SneakyThrows;

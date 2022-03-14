@@ -88,4 +88,43 @@ public class GenericDAO<T extends IEntities>
         stringForUpdate = stringForUpdate.substring(0,stringForUpdate.length()-1);
         stm.executeUpdate(stringForUpdate+" WHERE id="+id);
     }
+    /*
+    function joins the current type of the DAO with another table.
+    To work properly it needs an entity that supports the join with the correct number of columns.
+    */
+    @SneakyThrows
+    public void joinTwoBy(ArrayList<String> allColumnsToDisplay,String thisFK,String otherTableName,String otherPK)
+    {
+        String stringToExecute = "SELECT ";
+        for (int i = 0; i < allColumnsToDisplay.size(); i++)
+        {
+            stringToExecute=stringToExecute+allColumnsToDisplay.get(i)+",";
+        }
+        stringToExecute=stringToExecute.substring(0,stringToExecute.length()-1);
+        stringToExecute=stringToExecute+" from \""+tableName+"\" JOIN \""+otherTableName+"\" ON "+tableName+"."+thisFK+" = "+otherTableName+"."+otherPK;
+        ResultSet result= stm.executeQuery(stringToExecute);
+    }
+
+    /*
+    function joins the current type of the DAO with other tables.
+    To work properly it needs an entity that supports the join with the correct number of columns.
+    */
+    @SneakyThrows
+    public void joinMultipleBy(ArrayList<String> allColumnsToDisplay,ArrayList<String> allNeededFKS,ArrayList<String> otherTablesNames,ArrayList<String> allNeededPKS)
+    {
+        otherTablesNames.add(0,tableName);
+        String stringToExecute = "SELECT ";
+        for (int i = 0; i < allColumnsToDisplay.size(); i++)
+        {
+            stringToExecute=stringToExecute+allColumnsToDisplay.get(i)+",";
+        }
+        stringToExecute=stringToExecute.substring(0,stringToExecute.length()-1);
+        stringToExecute=stringToExecute+" from \""+otherTablesNames.get(0)+"\"";
+        for (int i = 0; i < otherTablesNames.size()-1; i++)
+        {
+            stringToExecute=stringToExecute+" JOIN \""+otherTablesNames.get(i+1)+"\" ON "
+                    +otherTablesNames.get(i)+"."+allNeededFKS.get(i)+" = "+otherTablesNames.get(i+1)+"."+allNeededPKS.get(i);
+        }
+        ResultSet result= stm.executeQuery(stringToExecute);
+    }
 }

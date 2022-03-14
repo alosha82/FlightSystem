@@ -90,18 +90,25 @@ public class GenericDAO<T extends IEntities>
     }
     /*
     function joins the current type of the DAO with another table.
+    allColumnsToDisplay soul be ordered in such order: first array index is an array of columns of this table
+    the next array index is an array of the other table
     To work properly it needs an entity that supports the join with the correct number of columns.
     */
     @SneakyThrows
-    public void joinTwoBy(ArrayList<String> allColumnsToDisplay,String thisFK,String otherTableName,String otherPK)
+    public void joinTwoBy(ArrayList<ArrayList<String>> allColumnsToDisplay,String thisFK,String otherTableName,String otherPK)
     {
+        ArrayList<String> tablesNames =new ArrayList<>();
+        tablesNames.add(tableName);
+        tablesNames.add(otherTableName);
         String stringToExecute = "SELECT ";
         for (int i = 0; i < allColumnsToDisplay.size(); i++)
         {
-            stringToExecute=stringToExecute+allColumnsToDisplay.get(i)+",";
+            for (int j = 0; j < allColumnsToDisplay.get(i).size(); j++) {
+                stringToExecute=stringToExecute+"\""+tablesNames.get(i)+"\".\""+allColumnsToDisplay.get(i).get(j)+",";
+            }
         }
         stringToExecute=stringToExecute.substring(0,stringToExecute.length()-1);
-        stringToExecute=stringToExecute+" from \""+tableName+"\" JOIN \""+otherTableName+"\" ON "+tableName+"."+thisFK+" = "+otherTableName+"."+otherPK;
+        stringToExecute=stringToExecute+" from \""+tableName+"\" JOIN \""+otherTableName+"\" ON \""+tableName+"\".\""+thisFK+"\" = \""+otherTableName+"\".\""+otherPK+"\"";
         ResultSet result= stm.executeQuery(stringToExecute);
     }
 
@@ -110,20 +117,24 @@ public class GenericDAO<T extends IEntities>
     To work properly it needs an entity that supports the join with the correct number of columns.
     */
     @SneakyThrows
-    public void joinMultipleBy(ArrayList<String> allColumnsToDisplay,ArrayList<String> allNeededFKS,ArrayList<String> otherTablesNames,ArrayList<String> allNeededPKS)
+    public void joinMultipleBy(ArrayList<ArrayList<String>> allColumnsToDisplay,ArrayList<String> allNeededFKS,ArrayList<String> otherTablesNames,ArrayList<String> allNeededPKS)
     {
+//        SELECT "Airline_Companies"."Id","Airline_Companies"."Name","Airline_Companies"."Country_Id" from "Airline_Companies"
+//        join "Users" on "Airline_Companies"."User_id"="Users"."Id"
         otherTablesNames.add(0,tableName);
         String stringToExecute = "SELECT ";
         for (int i = 0; i < allColumnsToDisplay.size(); i++)
         {
-            stringToExecute=stringToExecute+allColumnsToDisplay.get(i)+",";
+            for (int j = 0; j < allColumnsToDisplay.get(i).size(); j++) {
+                stringToExecute=stringToExecute+"\""+otherTablesNames.get(i)+"\".\""+allColumnsToDisplay.get(i).get(j)+",";
+            }
         }
         stringToExecute=stringToExecute.substring(0,stringToExecute.length()-1);
         stringToExecute=stringToExecute+" from \""+otherTablesNames.get(0)+"\"";
         for (int i = 0; i < otherTablesNames.size()-1; i++)
         {
-            stringToExecute=stringToExecute+" JOIN \""+otherTablesNames.get(i+1)+"\" ON "
-                    +otherTablesNames.get(i)+"."+allNeededFKS.get(i)+" = "+otherTablesNames.get(i+1)+"."+allNeededPKS.get(i);
+            stringToExecute=stringToExecute+" JOIN \""+otherTablesNames.get(i+1)+"\" ON \""
+                    +otherTablesNames.get(i)+"\".\""+allNeededFKS.get(i)+"\" = \""+otherTablesNames.get(i+1)+"\".\""+allNeededPKS.get(i)+"\"";
         }
         ResultSet result= stm.executeQuery(stringToExecute);
     }

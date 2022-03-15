@@ -13,23 +13,23 @@ import java.util.List;
 public class GenericDAO<T extends IEntities>
 {
     //Todo input the name of the database in sql after I create it in sql
-    private String url="database name";
+    private String dataBaseName="FlightSystem";
     private String tableName;
     private T entityType;
-    private List<T> arrayOfEntityType;
+    private ArrayList<T> arrayOfEntityType;
     private PostgresConnection postgresConnection =new PostgresConnection();
-    private Connection connection = postgresConnection.getConnection(url,"1");
+    private Connection connection = postgresConnection.getConnection(dataBaseName,"1");
     private Statement stm = postgresConnection.getStatement();
 
     public GenericDAO(String tableName, T tableType) {
         this.tableName=tableName;
         this.entityType = tableType;
         this.arrayOfEntityType = new ArrayList<>();
-        getAllT(tableName);
+        getAllT();
     }
 
     @SneakyThrows
-    public List<T> getAllT(String tableName)
+    public ArrayList<T> getAllT()
     {
         ResultSet result= stm.executeQuery("select * from "+tableName);
         while(result.next())
@@ -40,7 +40,7 @@ public class GenericDAO<T extends IEntities>
         return arrayOfEntityType;
     }
     @SneakyThrows
-    public T getAdministratorById(int id)
+    public T getTById(int id)
     {
         ResultSet result= stm.executeQuery("select * from "+tableName+" WHERE id="+id);
         //needed because it starts on wrong column
@@ -50,16 +50,16 @@ public class GenericDAO<T extends IEntities>
         return entityType;
     }
     @SneakyThrows
-    public void removeAdministrator(int id)
+    public void removeT(int id)
     {
         stm.executeUpdate("DELETE from "+tableName+" WHERE id="+id);
         System.out.println("done");
     }
     @SneakyThrows
-    public void addAdministrator(Administrators administrator)
+    public void addT(T typeOfDOA)
     {
-        ArrayList<String> fieldsInStringForm = administrator.getAllExceptIdInStringFormat();
-        ArrayList<String> columnNames = administrator.getColumnNames();
+        ArrayList<String> fieldsInStringForm = typeOfDOA.getAllExceptIdInStringFormat();
+        ArrayList<String> columnNames = typeOfDOA.getColumnNames();
         //INSERT INTO Administrators (first_name,last_name,user_id) VALUES (
         String stringForExecution = "INSERT INTO "+tableName+" (";
         for (int i = 0; i < columnNames.size(); i++)
@@ -76,10 +76,10 @@ public class GenericDAO<T extends IEntities>
         stm.executeUpdate(stringForExecution+")");
     }
     @SneakyThrows
-    public void updateAdministrator(Administrators administrator,int id)
+    public void updateT(T typeOfDOA,int id)
     {
-        ArrayList<String> columnNames = administrator.getColumnNames();
-        ArrayList<String> fieldsInStringForm = administrator.getAllExceptIdInStringFormat();
+        ArrayList<String> columnNames = typeOfDOA.getColumnNames();
+        ArrayList<String> fieldsInStringForm = typeOfDOA.getAllExceptIdInStringFormat();
         String stringForUpdate ="UPDATE "+tableName+" SET ";
         for (int i = 0; i < fieldsInStringForm.size(); i++)
         {

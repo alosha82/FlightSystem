@@ -7,4 +7,5 @@ public interface IEntities
 {
     public void setAll(ResultSet result);
     public ArrayList<String> getAllExceptIdInStringFormat();
+    public ArrayList<String> getColumnNames();
 }

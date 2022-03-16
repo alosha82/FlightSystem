@@ -16,6 +16,22 @@ public class UserRoles implements IEntities
     private String roleName;
     private ArrayList<String> columnNames;
 
+    public UserRoles()
+    {
+        columnNames.add("Id");
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setRoleName(String roleName)
+    {
+        this.roleName = roleName;
+        if(!columnNames.contains("Role_Name"))
+            columnNames.add("Role_Name");
+    }
+
     @SneakyThrows
     public void setAll(ResultSet result)
     {
@@ -28,13 +44,13 @@ public class UserRoles implements IEntities
         int i=0;
         setId(result.getInt(columnNames.get(i++)));
         setRoleName("\'"+result.getString(columnNames.get(i++))+"\'");
-        this.columnNames=columnNames;
     }
 
     public ArrayList<String> getAllExceptIdInStringFormat()
     {
         ArrayList<String> getterArray = new ArrayList<>();
-        getterArray.add(getRoleName());
+        if(columnNames.contains("Role_Name"))
+            getterArray.add(getRoleName());
         return getterArray;
     }
 

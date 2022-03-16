@@ -1,7 +1,6 @@
 package entities;
 
 import lombok.Getter;
-import lombok.Setter;
 import lombok.SneakyThrows;
 
 import java.sql.ResultSet;
@@ -9,12 +8,26 @@ import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 
 @Getter
-@Setter
 public class Countries implements IEntities
 {
-    private int id;
+    private Integer id;
     private String name;
     private ArrayList<String> columnNames;
+
+    public Countries()
+    {
+        columnNames.add("Id");
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+        if (!columnNames.contains("Name"))
+            columnNames.add("Name");
+    }
 
     @SneakyThrows
     public void setAll(ResultSet result)
@@ -28,13 +41,13 @@ public class Countries implements IEntities
         int i=0;
         setId(result.getInt(columnNames.get(i++)));
         setName("\'"+result.getString(columnNames.get(i++))+"\'");
-        this.columnNames=columnNames;
     }
 
     public ArrayList<String> getAllExceptIdInStringFormat()
     {
         ArrayList<String> getterArray = new ArrayList<>();
-        getterArray.add(getName());
+        if (columnNames.contains("Name"))
+            getterArray.add(getName());
         return getterArray;
     }
 

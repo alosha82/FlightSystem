@@ -8,7 +8,6 @@ import java.sql.ResultSet;
 
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.List;
 
 public class GenericDAO<T extends IEntities>
 {
@@ -25,11 +24,11 @@ public class GenericDAO<T extends IEntities>
         this.tableName=tableName;
         this.entityType = tableType;
         this.arrayOfEntityType = new ArrayList<>();
-        getAllT();
+        getAll();
     }
 
     @SneakyThrows
-    public ArrayList<T> getAllT()
+    public ArrayList<T> getAll()
     {
         ResultSet result= stm.executeQuery("select * from "+tableName);
         while(result.next())
@@ -40,7 +39,7 @@ public class GenericDAO<T extends IEntities>
         return arrayOfEntityType;
     }
     @SneakyThrows
-    public T getTById(int id)
+    public T getById(int id)
     {
         ResultSet result= stm.executeQuery("select * from "+tableName+" WHERE id="+id);
         //needed because it starts on wrong column
@@ -50,19 +49,19 @@ public class GenericDAO<T extends IEntities>
         return entityType;
     }
     @SneakyThrows
-    public void removeT(int id)
+    public void remove(int id)
     {
         stm.executeUpdate("DELETE from "+tableName+" WHERE id="+id);
         System.out.println("done");
     }
     @SneakyThrows
-    public void addT(T typeOfDOA)
+    public void add(T typeOfEntity)
     {
-        ArrayList<String> fieldsInStringForm = typeOfDOA.getAllExceptIdInStringFormat();
-        ArrayList<String> columnNames = typeOfDOA.getColumnNames();
+        ArrayList<String> fieldsInStringForm = typeOfEntity.getAllExceptIdInStringFormat();
+        ArrayList<String> columnNames = typeOfEntity.getColumnNames();
         //INSERT INTO Administrators (first_name,last_name,user_id) VALUES (
         String stringForExecution = "INSERT INTO "+tableName+" (";
-        for (int i = 0; i < columnNames.size(); i++)
+        for (int i = 1; i < columnNames.size(); i++)
         {
             stringForExecution=stringForExecution+columnNames.get(i)+",";
         }
@@ -76,10 +75,10 @@ public class GenericDAO<T extends IEntities>
         stm.executeUpdate(stringForExecution+")");
     }
     @SneakyThrows
-    public void updateT(T typeOfDOA,int id)
+    public void update(T typeOfEntity,int id)
     {
-        ArrayList<String> columnNames = typeOfDOA.getColumnNames();
-        ArrayList<String> fieldsInStringForm = typeOfDOA.getAllExceptIdInStringFormat();
+        ArrayList<String> columnNames = typeOfEntity.getColumnNames();
+        ArrayList<String> fieldsInStringForm = typeOfEntity.getAllExceptIdInStringFormat();
         String stringForUpdate ="UPDATE "+tableName+" SET ";
         for (int i = 0; i < fieldsInStringForm.size(); i++)
         {

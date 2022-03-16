@@ -1,14 +1,13 @@
 package entities;
 
 import lombok.Getter;
-import lombok.Setter;
 import lombok.SneakyThrows;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 
-@Setter
+
 @Getter
 public class Tickets implements IEntities
 {
@@ -16,6 +15,29 @@ public class Tickets implements IEntities
     private long flightId;
     private long costumersId;
     private ArrayList<String> columnNames;
+
+    public Tickets()
+    {
+        columnNames.add("Id");
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public void setFlightId(long flightId)
+    {
+        this.flightId = flightId;
+        if(!columnNames.contains("Flight_Id"))
+            columnNames.add("Flight_Id");
+    }
+
+    public void setCostumersId(long costumersId)
+    {
+        this.costumersId = costumersId;
+        if(!columnNames.contains("Costumers_Id"))
+            columnNames.add("Costumers_Id");
+    }
 
     @SneakyThrows
     public void setAll(ResultSet result)
@@ -30,14 +52,15 @@ public class Tickets implements IEntities
         setId(result.getInt(columnNames.get(i++)));
         setFlightId(result.getLong(columnNames.get(i++)));
         setCostumersId(result.getLong(columnNames.get(i++)));
-        this.columnNames=columnNames;
     }
 
     public ArrayList<String> getAllExceptIdInStringFormat()
     {
         ArrayList<String> getterArray = new ArrayList<>();
-        getterArray.add(""+getFlightId());
-        getterArray.add(""+getCostumersId());
+        if(columnNames.contains("Flight_Id"))
+            getterArray.add(""+getFlightId());
+        if(columnNames.contains("Costumers_Id"))
+            getterArray.add(""+getCostumersId());
         return getterArray;
     }
 

@@ -1,7 +1,6 @@
 package entities;
 
 import lombok.Getter;
-import lombok.Setter;
 import lombok.SneakyThrows;
 
 import java.sql.ResultSet;
@@ -9,14 +8,41 @@ import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 
 @Getter
-@Setter
 public class Administrators implements IEntities
 {
-    private int id;
+    private Integer id;
     private String firstName;
     private String lastName;
-    private long userId;
+    private Long userId;
     private ArrayList<String> columnNames;
+
+    public Administrators()
+    {
+        columnNames.add("Id");
+    }
+
+    private void setId(int id)
+    {
+        this.id = id;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+        if (!columnNames.contains("First_Name"))
+            columnNames.add("First_Name");
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+        if (!columnNames.contains("Last_Name"))
+            columnNames.add("Last_Name");
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
+        if (!columnNames.contains("User_Id"))
+            columnNames.add("User_Id");
+    }
 
     @SneakyThrows
     public void setAll(ResultSet result)
@@ -32,15 +58,17 @@ public class Administrators implements IEntities
         setFirstName("\'"+result.getString(columnNames.get(i++))+"\'");
         setLastName("\'"+result.getString(columnNames.get(i++))+"\'");
         setUserId(result.getLong(columnNames.get(i++)));
-        this.columnNames=columnNames;
     }
 
     public ArrayList<String> getAllExceptIdInStringFormat()
     {
         ArrayList<String> getterArray = new ArrayList<>();
-        getterArray.add(getFirstName());
-        getterArray.add(getLastName());
-        getterArray.add(""+getUserId());
+        if (columnNames.contains("First_Name"))
+            getterArray.add(getFirstName());
+        if (columnNames.contains("Last_Name"))
+            getterArray.add(getLastName());
+        if (columnNames.contains("User_Id"))
+            getterArray.add(""+getUserId());
         return getterArray;
     }
 

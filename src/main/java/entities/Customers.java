@@ -12,14 +12,65 @@ import java.util.ArrayList;
 @Setter
 public class Customers implements IEntities
 {
-    private long id;
+    private Long id;
     private String firstName;
     private String LastName;
     private String address;
     private String phoneNumber;
     private String creditCardNumber;
-    private long userId;
+    private Long userId;
     private ArrayList<String> columnNames;
+
+    public Customers()
+    {
+        columnNames.add("Id");
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public void setFirstName(String firstName)
+    {
+        this.firstName = firstName;
+        if(!columnNames.contains("First_Name"))
+            columnNames.add("First_Name");
+    }
+
+    public void setLastName(String lastName)
+    {
+        LastName = lastName;
+        if(!columnNames.contains("Last_Name"))
+            columnNames.add("Last_Name");
+    }
+
+    public void setAddress(String address)
+    {
+        this.address = address;
+        if(!columnNames.contains("Address"))
+            columnNames.add("Address");
+    }
+
+    public void setPhoneNumber(String phoneNumber)
+    {
+        this.phoneNumber = phoneNumber;
+        if(!columnNames.contains("Phone_No"))
+            columnNames.add("Phone_No");
+    }
+
+    public void setCreditCardNumber(String creditCardNumber)
+    {
+        this.creditCardNumber = creditCardNumber;
+        if(!columnNames.contains("Credit_Card_No"))
+            columnNames.add("Credit_Card_No");
+    }
+
+    public void setUserId(long userId)
+    {
+        this.userId = userId;
+        if(!columnNames.contains("User_Id"))
+            columnNames.add("User_Id");
+    }
 
     @SneakyThrows
     public void setAll(ResultSet result)
@@ -38,18 +89,23 @@ public class Customers implements IEntities
         setPhoneNumber("\'"+result.getString(columnNames.get(i++))+"\'");
         setCreditCardNumber("\'"+result.getString(columnNames.get(i++))+"\'");
         setUserId(result.getLong(columnNames.get(i++)));
-        this.columnNames=columnNames;
     }
 
     public ArrayList<String> getAllExceptIdInStringFormat()
     {
         ArrayList<String> getterArray = new ArrayList<>();
-        getterArray.add(getFirstName());
-        getterArray.add(getLastName());
-        getterArray.add(getAddress());
-        getterArray.add(getPhoneNumber());
-        getterArray.add(getCreditCardNumber());
-        getterArray.add(""+getUserId());
+        if(columnNames.contains("First_Name"))
+            getterArray.add(getFirstName());
+        if(columnNames.contains("Last_Name"))
+            getterArray.add(getLastName());
+        if(columnNames.contains("Address"))
+            getterArray.add(getAddress());
+        if(columnNames.contains("Phone_No"))
+            getterArray.add(getPhoneNumber());
+        if(columnNames.contains("Credit_Card_No"))
+            getterArray.add(getCreditCardNumber());
+        if(columnNames.contains("User_Id"))
+            getterArray.add(""+getUserId());
         return getterArray;
     }
 

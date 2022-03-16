@@ -1,7 +1,6 @@
 package entities;
 
 import lombok.Getter;
-import lombok.Setter;
 import lombok.SneakyThrows;
 
 import java.sql.ResultSet;
@@ -9,7 +8,6 @@ import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 
 @Getter
-@Setter
 public class Users implements IEntities
 {
     private long id;
@@ -18,6 +16,43 @@ public class Users implements IEntities
     private String email;
     private int userRole;
     private ArrayList<String> columnNames;
+
+    public Users()
+    {
+        columnNames.add("Id");
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public void setUserName(String userName)
+    {
+        this.userName = userName;
+        if(!columnNames.contains("User_Name"))
+            columnNames.add("User_Name");
+    }
+
+    public void setPassword(String password)
+    {
+        this.password = password;
+        if(!columnNames.contains("Password"))
+            columnNames.add("Password");
+    }
+
+    public void setEmail(String email)
+    {
+        this.email = email;
+        if(!columnNames.contains("Email"))
+            columnNames.add("Email");
+    }
+
+    public void setUserRole(int userRole)
+    {
+        this.userRole = userRole;
+        if(!columnNames.contains("User_Role"))
+            columnNames.add("User_Role");
+    }
 
     @SneakyThrows
     public void setAll(ResultSet result)

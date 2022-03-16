@@ -21,7 +21,7 @@ public class AirlineFacade
     {
         GenericDAO<AirlineCompanies> airlineCompaniesDAO = new GenericDAO<>("AirlineCompanies",new AirlineCompanies());
         if (airlineCompany.getId()==null)
-            System.out.println("Id must be provided inside the customer. No update was made to the DataBase");
+            System.out.println("Id must be provided inside the flight. No update was made to the DataBase");
         else
             airlineCompaniesDAO.update(airlineCompany,airlineCompany.getId());
     }
@@ -29,7 +29,7 @@ public class AirlineFacade
     {
         GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights",new Flights());
         if (flight.getId()==null)
-            System.out.println("Id must be provided inside the customer. No update was made to the DataBase");
+            System.out.println("Id must be provided inside the flight. No update was made to the DataBase");
         else
             flightsDAO.update(flight,flight.getId());
     }
@@ -56,7 +56,7 @@ public class AirlineFacade
     {
         GenericDAO<Flights> ticketsDAO = new GenericDAO<>("Flights",new Flights());
         if (flight.getId()==null)
-            System.out.println("Id must be provided inside the ticket. No removal was made in the DataBase");
+            System.out.println("Id must be provided inside the flight. No removal was made in the DataBase");
         else
             ticketsDAO.remove(flight.getId());
     }
@@ -73,7 +73,7 @@ public class AirlineFacade
         columns.get(0).add("Landing_time");
         columns.get(0).add("Remaining_Tickets");
         if (airlineCompany.getId()==null)
-            throw new Exception("Id must be provided inside the customer. Can not get tickets from DataBase");
+            throw new Exception("Id must be provided inside the airline company. Can not get flights from DataBase");
         else
             return flightsDAO.joinTwoByWithWhereClause(columns,"Airline_Company_Id","AirlineCompanies","Id"
                     ,new Flights(),"WHERE \"Customers\".\"Id\"="+airlineCompany.getId());

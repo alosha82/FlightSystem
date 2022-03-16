@@ -11,9 +11,9 @@ import java.util.ArrayList;
 @Getter
 public class Tickets implements IEntities
 {
-    private long id;
-    private long flightId;
-    private long costumersId;
+    private Long id;
+    private Long flightId;
+    private Long costumersId;
     private ArrayList<String> columnNames;
 
     public Tickets()

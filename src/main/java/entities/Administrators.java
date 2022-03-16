@@ -21,7 +21,7 @@ public class Administrators implements IEntities
         columnNames.add("Id");
     }
 
-    private void setId(int id)
+    public void setId(int id)
     {
         this.id = id;
     }

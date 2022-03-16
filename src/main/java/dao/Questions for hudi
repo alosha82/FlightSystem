@@ -1,0 +1,18 @@
+//TODO how to make that work. the problem is with the join.
+CREATE or replace FUNCTION  get_flights_by_parameters1(_origin_coutnry_id int, _destination_country_id int,_date timestamp without time zone)
+returns TABLE("Id1" bigint ,"Airline_Name" text,"Country_name" text,"Departure_time1" timestamp without time zone,"Landing_time1" timestamp without time zone,"Remaining_Tickets1" int)
+language plpgsql
+as
+$$
+BEGIN
+	RETURN QUERY
+        SELECT "Flights"."Id","Airline_Companies"."Name","Countries"."Name","Flights"."Departure_time","Flights"."Landing_time","Flights"."Remaining_Tickets" from "Flights"
+        join "Airline_Companies" on "Flights"."Airline_Company_Id"="Airline_Companies"."Id"
+		join "Countries" on "Flights"."Origin_Country_Id"="Countries"."Id"
+		join "Countries" on "Flights"."Destination_Country_Id"="Countries"."Id";
+	 	WHERE ("Departure_time"='_date' OR "Landing_time"='_date') AND "Origin_Country_Id"= _origin_coutnry_id AND ("Destination_Country_Id"=_destination_country_id);
+END;
+$$;
+//TODO how to transfer date in sql as a parameter?
+getFlightsByDepartureDate(date)
+getFlightsByLandingDate(date)

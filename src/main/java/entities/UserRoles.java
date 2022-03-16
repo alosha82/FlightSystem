@@ -12,7 +12,7 @@ import java.util.ArrayList;
 @Setter
 public class UserRoles implements IEntities
 {
-    private int id;
+    private Integer id;
     private String roleName;
     private ArrayList<String> columnNames;
 

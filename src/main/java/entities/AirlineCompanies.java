@@ -22,7 +22,7 @@ public class AirlineCompanies implements IEntities
         columnNames.add("Id");
     }
 
-    private void setId(long id)
+    public void setId(long id)
     {
         this.id = id;
     }

@@ -34,6 +34,7 @@ public class GenericDAO<T extends IEntities>
         while(result.next())
         {
             entityType.setAll(result);
+            arrayOfEntityType.add(entityType);
         }
         result.close();
         return arrayOfEntityType;
@@ -49,7 +50,7 @@ public class GenericDAO<T extends IEntities>
         return entityType;
     }
     @SneakyThrows
-    public void remove(int id)
+    public void remove(long id)
     {
         stm.executeUpdate("DELETE from "+tableName+" WHERE id="+id);
         System.out.println("done");
@@ -75,7 +76,7 @@ public class GenericDAO<T extends IEntities>
         stm.executeUpdate(stringForExecution+")");
     }
     @SneakyThrows
-    public void update(T typeOfEntity,int id)
+    public void update(T typeOfEntity,long id)
     {
         ArrayList<String> columnNames = typeOfEntity.getColumnNames();
         ArrayList<String> fieldsInStringForm = typeOfEntity.getAllExceptIdInStringFormat();
@@ -94,7 +95,7 @@ public class GenericDAO<T extends IEntities>
     To work properly it needs an entity that supports the join with the correct number of columns.
     */
     @SneakyThrows
-    public void joinTwoBy(ArrayList<ArrayList<String>> allColumnsToDisplay,String thisFK,String otherTableName,String otherPK)
+    private String generateJoinTwoByQuery(ArrayList<ArrayList<String>> allColumnsToDisplay, String thisFK, String otherTableName, String otherPK,String whereClause)
     {
         ArrayList<String> tablesNames =new ArrayList<>();
         tablesNames.add(tableName);
@@ -108,7 +109,36 @@ public class GenericDAO<T extends IEntities>
         }
         stringToExecute=stringToExecute.substring(0,stringToExecute.length()-1);
         stringToExecute=stringToExecute+" from \""+tableName+"\" JOIN \""+otherTableName+"\" ON \""+tableName+"\".\""+thisFK+"\" = \""+otherTableName+"\".\""+otherPK+"\"";
-        ResultSet result= stm.executeQuery(stringToExecute);
+        stringToExecute=stringToExecute+whereClause;
+        return stringToExecute;
+    }
+
+    @SneakyThrows
+    private ArrayList<T> executeQueryAndSaveInTheProperEntity(String query,T typeOfEntity)
+    {
+        ArrayList<T> ArrayListOfTypeOfEntity=new ArrayList<>();
+        ResultSet result= stm.executeQuery(query);
+        while(result.next())
+        {
+            typeOfEntity.setAll(result);
+            ArrayListOfTypeOfEntity.add(typeOfEntity);
+        }
+        result.close();
+        return ArrayListOfTypeOfEntity;
+    }
+
+    @SneakyThrows
+    public ArrayList<T> joinTwoBy(ArrayList<ArrayList<String>> allColumnsToDisplay,String thisFK,String otherTableName,String otherPK,T typeOfEntity)
+    {
+        String stringToExecute = generateJoinTwoByQuery(allColumnsToDisplay,thisFK,otherTableName,otherPK,"");
+        return executeQueryAndSaveInTheProperEntity(stringToExecute,typeOfEntity);
+    }
+
+    @SneakyThrows
+    public ArrayList<T> joinTwoByWithWhereClause(ArrayList<ArrayList<String>> allColumnsToDisplay,String thisFK,String otherTableName,String otherPK,T typeOfEntity,String whereClause)
+    {
+        String stringToExecute = generateJoinTwoByQuery(allColumnsToDisplay,thisFK,otherTableName,otherPK,whereClause);
+        return executeQueryAndSaveInTheProperEntity(stringToExecute,typeOfEntity);
     }
 
     /*

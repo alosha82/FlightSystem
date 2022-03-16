@@ -10,11 +10,11 @@ import java.util.ArrayList;
 @Getter
 public class Users implements IEntities
 {
-    private long id;
+    private Long id;
     private String userName;
     private String password;
     private String email;
-    private int userRole;
+    private Integer userRole;
     private ArrayList<String> columnNames;
 
     public Users()

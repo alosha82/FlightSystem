@@ -39,10 +39,36 @@ public class GenericDAO<T extends IEntities>
         result.close();
         return arrayOfEntityType;
     }
+
     @SneakyThrows
-    public T getById(int id)
+    public T getById(long id)
     {
-        ResultSet result= stm.executeQuery("select * from "+tableName+" WHERE id="+id);
+        return  getByFieldType("Id",""+id);
+    }
+    @SneakyThrows
+    public T getByFieldType(String formattedByPostgresSQLStandardsParameter,String fieldName)
+    {
+        ResultSet result= stm.executeQuery("select * from "+tableName+" WHERE "+fieldName+"="+formattedByPostgresSQLStandardsParameter);
+        //needed because it starts on wrong column
+        result.next();
+        entityType.setAll(result);
+        result.close();
+        return entityType;
+    }
+    @SneakyThrows
+    /*
+    Possible field types: Numerical,Text,Date
+    */
+    public T getByFieldType1(String fieldName,String parameter,String sqlFieldType)
+    {
+        switch (sqlFieldType)
+        {
+            case("Numerical")->parameter=parameter;
+            case("Text")->parameter="\'"+parameter+"\'";
+            //TODO- figure out how to give date in SQL query
+            case("Date")->parameter="\'"+parameter+"\'";
+        }
+        ResultSet result= stm.executeQuery("select * from "+tableName+" WHERE "+fieldName+"="+parameter);
         //needed because it starts on wrong column
         result.next();
         entityType.setAll(result);
@@ -130,8 +156,12 @@ public class GenericDAO<T extends IEntities>
     @SneakyThrows
     public ArrayList<T> joinTwoBy(ArrayList<ArrayList<String>> allColumnsToDisplay,String thisFK,String otherTableName,String otherPK,T typeOfEntity)
     {
-        String stringToExecute = generateJoinTwoByQuery(allColumnsToDisplay,thisFK,otherTableName,otherPK,"");
-        return executeQueryAndSaveInTheProperEntity(stringToExecute,typeOfEntity);
+        return joinTwoByWithWhereClause(allColumnsToDisplay,thisFK,otherTableName,otherPK,typeOfEntity,"");
+    }
+    @SneakyThrows
+    public ResultSet joinTwoByGetResultSet(ArrayList<ArrayList<String>> allColumnsToDisplay,String thisFK,String otherTableName,String otherPK)
+    {
+        return joinTwoByWithWhereClauseGetResultSet(allColumnsToDisplay,thisFK,otherTableName,otherPK,"");
     }
 
     @SneakyThrows
@@ -140,7 +170,12 @@ public class GenericDAO<T extends IEntities>
         String stringToExecute = generateJoinTwoByQuery(allColumnsToDisplay,thisFK,otherTableName,otherPK,whereClause);
         return executeQueryAndSaveInTheProperEntity(stringToExecute,typeOfEntity);
     }
-
+    @SneakyThrows
+    public ResultSet joinTwoByWithWhereClauseGetResultSet(ArrayList<ArrayList<String>> allColumnsToDisplay,String thisFK,String otherTableName,String otherPK,String whereClause)
+    {
+        String stringToExecute = generateJoinTwoByQuery(allColumnsToDisplay,thisFK,otherTableName,otherPK,whereClause);
+        return stm.executeQuery(stringToExecute);
+    }
     /*
     function joins the current type of the DAO with other tables.
     To work properly it needs an entity that supports the join with the correct number of columns.

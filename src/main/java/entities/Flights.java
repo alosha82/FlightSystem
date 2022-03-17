@@ -5,8 +5,8 @@ import lombok.SneakyThrows;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 
 @Getter
 public class Flights implements IEntities
@@ -16,9 +16,9 @@ public class Flights implements IEntities
     private Integer originCountryId;
     private Integer destinationCountryId;
     //Todo Subject to change
-    private Date departureTime;
+    private Timestamp departureTime;
     //Todo Subject to change
-    private Date landingTime;
+    private Timestamp landingTime;
     private Integer remainingTickets;
     private ArrayList<String> columnNames;
 
@@ -51,14 +51,14 @@ public class Flights implements IEntities
             columnNames.add("Destination_Country_Id");
     }
 
-    public void setDepartureTime(Date departureTime)
+    public void setDepartureTime(Timestamp departureTime)
     {
         this.departureTime = departureTime;
         if(!columnNames.contains("Departure_Time"))
             columnNames.add("Departure_Time");
     }
 
-    public void setLandingTime(Date landingTime)
+    public void setLandingTime(Timestamp landingTime)
     {
         this.landingTime = landingTime;
         if(!columnNames.contains("Landing_Time"))

@@ -7,12 +7,11 @@ import entities.Flights;
 import entities.Users;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 public abstract class FacadeBase
 {
-    public abstract ArrayList<Flights> get_flights_by_parameters(int origin_country_id, int destination_country_id, Date date);
-    public abstract ArrayList<AirlineCompanies> get_airline_by_parameters(  );
+//    public abstract ArrayList<Flights> get_flights_by_parameters(int origin_country_id, int destination_country_id, Date date);
+//    public abstract ArrayList<AirlineCompanies> get_airline_by_parameters(  );
 
     public ArrayList<Flights> getAllFlights()
     {

@@ -134,7 +134,11 @@ public class GenericDAO<T extends IEntities>
 //    }
     @SneakyThrows
 
-    private String generateJoinMultipleByQuery(ArrayList<ArrayList<String>> allColumnsToDisplay, ArrayList<String> allNeededFKS, ArrayList<String> otherTablesNames, ArrayList<String> allNeededPKS, String whereClause)
+    private String generateJoinMultipleByQuery(ArrayList<ArrayList<String>> allColumnsToDisplay,
+                                               ArrayList<String> allNeededFKS,
+                                               ArrayList<String> otherTablesNames,
+                                               ArrayList<String> allNeededPKS,
+                                               String whereClause)
     {
         //        SELECT "Airline_Companies"."Id","Airline_Companies"."Name","Airline_Companies"."Country_Id" from "Airline_Companies"
         //        join "Users" on "Airline_Companies"."User_id"="Users"."Id"
@@ -151,16 +155,16 @@ public class GenericDAO<T extends IEntities>
         for (int i = 0; i < otherTablesNames.size()-1; i++)
         {
             stringToExecute=stringToExecute+" JOIN \""+otherTablesNames.get(i+1)+"\" ON \""
-                    +otherTablesNames.get(i)+"\".\""+allNeededFKS.get(i)+"\" = \""+otherTablesNames.get(i+1)+"\".\""+allNeededPKS.get(i)+"\"";
+                    +otherTablesNames.get(i)+"\".\""+allNeededFKS.get(i)+"\" = \""+otherTablesNames.get(i+1)+"\".\""+allNeededPKS.get(i)+"\" ";
         }
         stringToExecute=stringToExecute+whereClause;
         return stringToExecute;
     }
 
     @SneakyThrows
-    private ArrayList<T> executeQueryAndSaveInTheProperEntity(String query,T typeOfEntity)
+    private <V extends IEntities> ArrayList<V> executeQueryAndSaveInTheProperEntity(String query,V typeOfEntity)
     {
-        ArrayList<T> ArrayListOfTypeOfEntity=new ArrayList<>();
+        ArrayList<V> ArrayListOfTypeOfEntity=new ArrayList<>();
         ResultSet result= stm.executeQuery(query);
         while(result.next())
         {
@@ -170,23 +174,31 @@ public class GenericDAO<T extends IEntities>
         result.close();
         return ArrayListOfTypeOfEntity;
     }
-//TODO the typeOFEntity passed to those functions should be different than the typeOfEntity of this class
     /*
     function joinTwoBy, and its brothers in name, joins the current type of the DAO with another table.
     allColumnsToDisplay should be ordered in such order: first array index is an array of columns of this table that you want to select
     the next array index is an array of columns of the other table that you want to select
-    To work properly it needs an entity that supports the join with the correct number of columns and types.
+    To work properly it needs an entity that supports the join with the correct number of columns and types, that entity should be transferred typeOfEntity.
     */
-    public ArrayList<T> joinTwoBy(ArrayList<ArrayList<String>> allColumnsToDisplay,String thisFK,String otherTableName,String otherPK,T typeOfEntity)
+    public<V extends IEntities> ArrayList<V> joinTwoBy(ArrayList<ArrayList<String>> allColumnsToDisplay,
+                                                       String thisFK,
+                                                       String otherTableName,
+                                                       String otherPK,
+                                                       V typeOfEntity)
     {
         return joinTwoByWithWhereClause(allColumnsToDisplay,thisFK,otherTableName,otherPK,typeOfEntity,"");
     }
+
     public ResultSet joinTwoByGetResultSet(ArrayList<ArrayList<String>> allColumnsToDisplay,String thisFK,String otherTableName,String otherPK)
     {
         return joinTwoByWithWhereClauseGetResultSet(allColumnsToDisplay,thisFK,otherTableName,otherPK,"");
     }
 
-    public ArrayList<T> joinTwoByWithWhereClause(ArrayList<ArrayList<String>> allColumnsToDisplay,String thisFK,String otherTableName,String otherPK,T typeOfEntity,String whereClause)
+    public <V extends IEntities> ArrayList<V> joinTwoByWithWhereClause(ArrayList<ArrayList<String>> allColumnsToDisplay,
+                                                                       String thisFK,String otherTableName,
+                                                                       String otherPK,
+                                                                       V typeOfEntity,
+                                                                       String whereClause)
     {
         ArrayList<String> foreignKey = new ArrayList<>();
         ArrayList<String> otherTableNameArr = new ArrayList<>();
@@ -197,9 +209,14 @@ public class GenericDAO<T extends IEntities>
         String stringToExecute = generateJoinMultipleByQuery(allColumnsToDisplay,foreignKey,otherTableNameArr,primaryKey,whereClause);
         return executeQueryAndSaveInTheProperEntity(stringToExecute,typeOfEntity);
     }
+
     @SneakyThrows
     /*the caller needs to close the ResultSet connection */
-    public ResultSet joinTwoByWithWhereClauseGetResultSet(ArrayList<ArrayList<String>> allColumnsToDisplay,String thisFK,String otherTableName,String otherPK,String whereClause)
+    public ResultSet joinTwoByWithWhereClauseGetResultSet(ArrayList<ArrayList<String>> allColumnsToDisplay,
+                                                          String thisFK,
+                                                          String otherTableName,
+                                                          String otherPK,
+                                                          String whereClause)
     {
         ArrayList<String> foreignKey = new ArrayList<>();
         ArrayList<String> otherTableNameArr = new ArrayList<>();
@@ -210,32 +227,53 @@ public class GenericDAO<T extends IEntities>
         String stringToExecute = generateJoinMultipleByQuery(allColumnsToDisplay,foreignKey,otherTableNameArr,primaryKey,whereClause);
         return stm.executeQuery(stringToExecute);
     }
+
     /*
     function joinMultipleBy, and its brothers in name, joins the current type of the DAO with other tables.
     allColumnsToDisplay should be ordered in such order: first array index is an array of columns of this table that you want to select
     the next array index is an array of columns of the first table in otherTablesNames array  that you want to select and so on
-    To work properly it needs an entity that supports the join with the correct number of columns and types.
+    To work properly it needs an entity that supports the join with the correct number of columns and types, that entity should be transferred typeOfEntity.
     */
-    public ArrayList<T> joinMultipleBy(ArrayList<ArrayList<String>> allColumnsToDisplay,ArrayList<String> allNeededFKS,ArrayList<String> otherTablesNames,ArrayList<String> allNeededPKS,T typeOfEntity)
+    public <V extends IEntities> ArrayList<V> joinMultipleBy(ArrayList<ArrayList<String>> allColumnsToDisplay,
+                                                             ArrayList<String> allNeededFKS,
+                                                             ArrayList<String> otherTablesNames,
+                                                             ArrayList<String> allNeededPKS,
+                                                             V typeOfEntity)
     {
         return joinMultipleByWithWhereClause(allColumnsToDisplay,allNeededFKS,otherTablesNames,allNeededPKS,typeOfEntity,"");
     }
-    public ResultSet joinMultipleByGetResultSet(ArrayList<ArrayList<String>> allColumnsToDisplay,ArrayList<String> allNeededFKS,ArrayList<String> otherTablesNames,ArrayList<String> allNeededPKS,T typeOfEntity)
+
+    public ResultSet joinMultipleByGetResultSet(ArrayList<ArrayList<String>> allColumnsToDisplay,
+                                                ArrayList<String> allNeededFKS,
+                                                ArrayList<String> otherTablesNames,
+                                                ArrayList<String> allNeededPKS)
     {
-        return joinMultipleByWithWhereClauseGetResultSet(allColumnsToDisplay,allNeededFKS,otherTablesNames,allNeededPKS,typeOfEntity,"");
+        return joinMultipleByWithWhereClauseGetResultSet(allColumnsToDisplay,allNeededFKS,otherTablesNames,allNeededPKS,"");
     }
-    public ArrayList<T> joinMultipleByWithWhereClause(ArrayList<ArrayList<String>> allColumnsToDisplay,ArrayList<String> allNeededFKS,ArrayList<String> otherTablesNames,ArrayList<String> allNeededPKS,T typeOfEntity,String whereClause)
+
+    public <V extends IEntities> ArrayList<V> joinMultipleByWithWhereClause(ArrayList<ArrayList<String>> allColumnsToDisplay,
+                                                                            ArrayList<String> allNeededFKS,
+                                                                            ArrayList<String> otherTablesNames,
+                                                                            ArrayList<String> allNeededPKS,
+                                                                            V typeOfEntity,
+                                                                            String whereClause)
     {
         String query = generateJoinMultipleByQuery(allColumnsToDisplay,allNeededFKS,otherTablesNames,allNeededPKS,whereClause);
         return executeQueryAndSaveInTheProperEntity(query,typeOfEntity);
     }
+
     @SneakyThrows
     /*the caller needs to close the ResultSet connection */
-    public ResultSet joinMultipleByWithWhereClauseGetResultSet(ArrayList<ArrayList<String>> allColumnsToDisplay,ArrayList<String> allNeededFKS,ArrayList<String> otherTablesNames,ArrayList<String> allNeededPKS,T typeOfEntity,String whereClause)
+    public ResultSet joinMultipleByWithWhereClauseGetResultSet(ArrayList<ArrayList<String>> allColumnsToDisplay,
+                                                               ArrayList<String> allNeededFKS,
+                                                               ArrayList<String> otherTablesNames,
+                                                               ArrayList<String> allNeededPKS,
+                                                               String whereClause)
     {
         String query = generateJoinMultipleByQuery(allColumnsToDisplay,allNeededFKS,otherTablesNames,allNeededPKS,whereClause);
         return stm.executeQuery(query);
     }
+
     @SneakyThrows
     public void closeAllDAOConnections()
     {

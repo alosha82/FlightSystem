@@ -26,6 +26,7 @@ public class CustomerFacade extends FacadeBase
             System.out.println("Id must be provided inside the customer. No update was made to the DataBase");
         else
             customersDAO.update(customer,customer.getId());
+        customersDAO.closeAllDAOConnections();
     }
 
     public void addTicket(Tickets ticket) throws Exception
@@ -41,6 +42,7 @@ public class CustomerFacade extends FacadeBase
                 throw new Exception("That ticket is already in the DataBase");
         }
         ticketsDAO.add(ticket);
+        ticketsDAO.closeAllDAOConnections();
     }
 
     public void removeTicket(Tickets ticket) throws Exception
@@ -52,10 +54,12 @@ public class CustomerFacade extends FacadeBase
             System.out.println("Id must be provided inside the ticket. No removal was made in the DataBase");
         else
             ticketsDAO.remove(ticket.getId());
+        ticketsDAO.closeAllDAOConnections();
     }
 
     public ArrayList<Tickets> getMyTickets() throws Exception
     {
+        ArrayList<Tickets> tickets;
         GenericDAO<Tickets> ticketsDAO = new GenericDAO<>("Tickets",new Tickets());
         ArrayList<ArrayList<String>> columns = new ArrayList<>();
         columns.add(new ArrayList<>());
@@ -63,9 +67,16 @@ public class CustomerFacade extends FacadeBase
         columns.get(0).add("Flight_Id");
         columns.get(0).add("Customer_Id");
         if (token.getId()==null)
+        {
+            ticketsDAO.closeAllDAOConnections();
             throw new Exception("Id must be provided inside the customer. Can not get tickets from DataBase");
+        }
         else
-            return ticketsDAO.joinTwoByWithWhereClause(columns,"Customer_Id","Customers","Id"
-                ,new Tickets(),"WHERE \"Customers\".\"Id\"="+token.getId());
+        {
+            tickets = ticketsDAO.joinTwoByWithWhereClause(columns, "Customer_Id", "Customers", "Id"
+                    , new Tickets(), "WHERE \"Customers\".\"Id\"=" + token.getId());
+            ticketsDAO.closeAllDAOConnections();
+            return tickets;
+        }
     }
 }

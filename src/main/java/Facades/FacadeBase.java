@@ -18,13 +18,17 @@ public abstract class FacadeBase
         ArrayList<Flights> flights;
         GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights", new Flights());
         flights=flightsDAO.getAll();
+        flightsDAO.closeAllDAOConnections();
         return flights;
     }
 
     public Flights getFlightById(int id)
     {
+        Flights flight;
         GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights", new Flights());
-        return flightsDAO.getById(id);
+        flight = flightsDAO.getById(id);
+        flightsDAO.closeAllDAOConnections();
+        return flight;
     }
 
     public ArrayList<AirlineCompanies> getAllAirlines()
@@ -32,13 +36,17 @@ public abstract class FacadeBase
         ArrayList<AirlineCompanies> airlineCompanies;
         GenericDAO<AirlineCompanies> airlineCompaniesDAO = new GenericDAO<>("Airline_Companies", new AirlineCompanies());
         airlineCompanies=airlineCompaniesDAO.getAll();
+        airlineCompaniesDAO.closeAllDAOConnections();
         return airlineCompanies;
     }
 
     public AirlineCompanies getAirlineById(int id)
     {
+        AirlineCompanies airlineCompany;
         GenericDAO<AirlineCompanies> airlineCompaniesDAO = new GenericDAO<>("Airline_Companies", new AirlineCompanies());
-        return airlineCompaniesDAO.getById(id);
+        airlineCompany=airlineCompaniesDAO.getById(id);
+        airlineCompaniesDAO.closeAllDAOConnections();
+        return airlineCompany;
     }
 
     public ArrayList<Countries> getAllCountries()
@@ -46,13 +54,16 @@ public abstract class FacadeBase
         ArrayList<Countries> countries;
         GenericDAO<Countries> countriesDAO = new GenericDAO<>("Countries", new Countries());
         countries=countriesDAO.getAll();
+        countriesDAO.closeAllDAOConnections();
         return countries;
     }
     public Countries getCountry(int id)
     {
-
+        Countries country;
         GenericDAO<Countries> countriesDAO = new GenericDAO<>("Countries", new Countries());
-        return countriesDAO.getById(id);
+        country=countriesDAO.getById(id);
+        countriesDAO.closeAllDAOConnections();
+        return country;
     }
     public Users createNewUser (String username, String password, String email, int userRole)
     {

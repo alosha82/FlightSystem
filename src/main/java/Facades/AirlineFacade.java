@@ -28,6 +28,7 @@ public class AirlineFacade extends FacadeBase
             System.out.println("Id must be provided inside the airlineCompany. No update was made to the DataBase");
         else
             airlineCompaniesDAO.update(airlineCompany,airlineCompany.getId());
+        airlineCompaniesDAO.closeAllDAOConnections();
     }
     public void updateFlight (Flights flight) throws Exception
     {
@@ -38,15 +39,15 @@ public class AirlineFacade extends FacadeBase
             System.out.println("Id must be provided inside the flight. No update was made to the DataBase");
         else
             flightsDAO.update(flight,flight.getId());
+        flightsDAO.closeAllDAOConnections();
     }
 
     public void addFlight(Flights flight) throws Exception
     {
         ArrayList<Flights> flights;
-        Flights x = new Flights();
-        GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights",new Flights());
         if (token.getId()!=flight.getAirlineCompanyId())
             throw new Exception("You can not add flights of another airline company");
+        GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights",new Flights());
         flights=flightsDAO.getAll();
         for (int i = 0; i < flights.size(); i++)
         {
@@ -56,15 +57,28 @@ public class AirlineFacade extends FacadeBase
                     &&(flights.get(i).getDepartureTime()==flight.getDepartureTime())
                     &&(flights.get(i).getLandingTime()==flight.getLandingTime())
                     &&(flights.get(i).getRemainingTickets()==flight.getRemainingTickets()))
+            {
+                flightsDAO.closeAllDAOConnections();
                 throw new Exception("That flight is already in the DataBase");
+            }
         }
         if (flight.getRemainingTickets()<0)
+        {
+            flightsDAO.closeAllDAOConnections();
             throw new Exception("Remaining tickets is negative. Can not add that flight to the DataBase");
+        }
         if (flight.getOriginCountryId()==flight.getDestinationCountryId())
+        {
+            flightsDAO.closeAllDAOConnections();
             throw new Exception("We do net provide flights within the country. Can not add that flight to the DataBase");
+        }
         if (flight.getLandingTime().before(flight.getDepartureTime()))
+        {
+            flightsDAO.closeAllDAOConnections();
             throw new Exception("There is a mix up in your flight times. it is impossible to land before you take flight. Can not add that flight to the DataBase");
+        }
         flightsDAO.add(flight);
+        flightsDAO.closeAllDAOConnections();
     }
 
     public void removeFlight(Flights flight) throws Exception
@@ -76,10 +90,12 @@ public class AirlineFacade extends FacadeBase
             System.out.println("Id must be provided inside the flight. No removal was made in the DataBase");
         else
             ticketsDAO.remove(flight.getId());
+        ticketsDAO.closeAllDAOConnections();
     }
 
     public ArrayList<Flights> getMyFlights() throws Exception
     {
+        ArrayList<Flights> flights;
         GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights",new Flights());
         ArrayList<ArrayList<String>> columns = new ArrayList<>();
         columns.add(new ArrayList<>());
@@ -91,9 +107,16 @@ public class AirlineFacade extends FacadeBase
         columns.get(0).add("Landing_time");
         columns.get(0).add("Remaining_Tickets");
         if (token.getId()==null)
+        {
+            flightsDAO.closeAllDAOConnections();
             throw new Exception("Id must be provided inside the airline company. Can not get flights from DataBase");
+        }
         else
-            return flightsDAO.joinTwoByWithWhereClause(columns,"Airline_Company_Id","AirlineCompanies","Id"
+        {
+            flights = flightsDAO.joinTwoByWithWhereClause(columns,"Airline_Company_Id","AirlineCompanies","Id"
                     ,new Flights(),"WHERE \"Customers\".\"Id\"="+token.getId());
+            flightsDAO.closeAllDAOConnections();
+            return flights;
+        }
     }
 }

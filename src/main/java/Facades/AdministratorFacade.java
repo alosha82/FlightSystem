@@ -19,8 +19,11 @@ public class AdministratorFacade extends FacadeBase
 
     public ArrayList<Customers> getAllCustomers()
     {
+        ArrayList<Customers> customers;
         GenericDAO<Customers> customersDAO = new GenericDAO<>("Customers",new Customers());
-        return customersDAO.getAll();
+        customers=customersDAO.getAll();
+        customersDAO.closeAllDAOConnections();
+        return customers;
     }
 
     public void addCustomer(Customers customer) throws Exception
@@ -36,9 +39,13 @@ public class AdministratorFacade extends FacadeBase
                     &&(customers.get(i).getPhoneNumber().equals(customer.getPhoneNumber()))
                     &&(customers.get(i).getCreditCardNumber().equals(customer.getCreditCardNumber()))
                     &&(customers.get(i).getUserId()==customer.getUserId()))
+            {
+                customersDAO.closeAllDAOConnections();
                 throw new Exception("That Customer is already in the DataBase");
+            }
         }
         customersDAO.add(customer);
+        customersDAO.closeAllDAOConnections();
     }
 
     public void addAirline(AirlineCompanies airlineCompany) throws Exception
@@ -51,9 +58,13 @@ public class AdministratorFacade extends FacadeBase
             if ((airlineCompanies.get(i).getName().equals(airlineCompany.getName()))
                     &&(airlineCompanies.get(i).getCountryId()==airlineCompany.getCountryId())
                     &&(airlineCompanies.get(i).getUserId()==airlineCompany.getUserId()))
+            {
+                airlineCompaniesDAO.closeAllDAOConnections();
                 throw new Exception("That airline is already in the DataBase");
+            }
         }
         airlineCompaniesDAO.add(airlineCompany);
+        airlineCompaniesDAO.closeAllDAOConnections();
     }
 
     public void addAdministrator(Administrators administrator) throws Exception
@@ -66,9 +77,13 @@ public class AdministratorFacade extends FacadeBase
             if ((administrators.get(i).getFirstName().equals(administrator.getFirstName()))
                     &&(administrators.get(i).getLastName().equals(administrator.getLastName()))
                     &&(administrators.get(i).getUserId()==administrator.getUserId()))
+            {
+                administratorsDAO.closeAllDAOConnections();
                 throw new Exception("That administrator is already in the DataBase");
+            }
         }
         administratorsDAO.add(administrator);
+        administratorsDAO.closeAllDAOConnections();
     }
 
     public void removeCustomer(Customers customer)
@@ -78,6 +93,7 @@ public class AdministratorFacade extends FacadeBase
             System.out.println("Id must be provided inside the ticket. No removal was made in the DataBase");
         else
             customersDAO.remove(customer.getId());
+        customersDAO.closeAllDAOConnections();
     }
 
     public void removeAirline(AirlineCompanies airlineCompany)
@@ -87,6 +103,7 @@ public class AdministratorFacade extends FacadeBase
             System.out.println("Id must be provided inside the ticket. No removal was made in the DataBase");
         else
             airlineCompaniesDAO.remove(airlineCompany.getId());
+        airlineCompaniesDAO.closeAllDAOConnections();
     }
 
     public void removeAdministrator(Administrators administrator)
@@ -96,5 +113,6 @@ public class AdministratorFacade extends FacadeBase
             System.out.println("Id must be provided inside the ticket. No removal was made in the DataBase");
         else
             administratorsDAO.remove(administrator.getId());
+        administratorsDAO.closeAllDAOConnections();
     }
 }

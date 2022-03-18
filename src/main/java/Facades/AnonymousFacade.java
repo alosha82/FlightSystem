@@ -29,7 +29,9 @@ public class AnonymousFacade extends FacadeBase
             loginToken.setId(joined.getLong("Id"));
             loginToken.setName(username);
             loginToken.setRole(joined.getString("Role_Name"));
-            switch(joined.getString("Role_Name"))
+            String role = joined.getString("Role_Name");
+            joined.close();
+            switch(role)
             {
                 case("Administrator")->
                         {

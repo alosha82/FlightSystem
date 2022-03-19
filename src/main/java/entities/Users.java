@@ -15,7 +15,7 @@ public class Users implements IEntities
     private String password;
     private String email;
     private Integer userRole;
-    private ArrayList<String> columnNames;
+    private ArrayList<String> columnNames=new ArrayList<>();
 
     public Users()
     {

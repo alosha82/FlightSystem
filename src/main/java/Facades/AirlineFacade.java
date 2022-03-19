@@ -7,7 +7,7 @@ import logintoken.LoginToken;
 import lombok.Getter;
 
 
-import java.util.ArrayList;
+import java.util.*;
 
 @Getter
 public class AirlineFacade extends FacadeBase
@@ -106,6 +106,8 @@ public class AirlineFacade extends FacadeBase
         columns.get(0).add("Departure_time");
         columns.get(0).add("Landing_time");
         columns.get(0).add("Remaining_Tickets");
+        Map<String, Collection<String>> tablesToColumnsMap=new HashMap<>();
+        tablesToColumnsMap.put("Flights", List.of("Id", "Airline_Company_Id","Origin_Country_Id","Destination_Country_Id","Departure_time","Landing_time","Remaining_Tickets"));
         if (token.getId()==null)
         {
             flightsDAO.closeAllDAOConnections();
@@ -113,7 +115,7 @@ public class AirlineFacade extends FacadeBase
         }
         else
         {
-            flights = flightsDAO.joinTwoByWithWhereClause(columns,"Airline_Company_Id","AirlineCompanies","Id"
+            flights = flightsDAO.joinTwoByWithWhereClause(tablesToColumnsMap,"Airline_Company_Id","AirlineCompanies","Id"
                     ,new Flights(),"WHERE \"Customers\".\"Id\"="+token.getId());
             flightsDAO.closeAllDAOConnections();
             return flights;

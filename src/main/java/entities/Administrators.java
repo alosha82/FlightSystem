@@ -14,7 +14,7 @@ public class Administrators implements IEntities
     private String firstName;
     private String lastName;
     private Long userId;
-    private ArrayList<String> columnNames;
+    private ArrayList<String> columnNames=new ArrayList<>();
 
     public Administrators()
     {

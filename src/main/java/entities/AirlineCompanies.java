@@ -15,7 +15,7 @@ public class AirlineCompanies implements IEntities
     private String name;
     private Integer countryId;
     private Long userId;
-    private ArrayList<String> columnNames;
+    private ArrayList<String> columnNames=new ArrayList<>();
 
     public AirlineCompanies()
     {

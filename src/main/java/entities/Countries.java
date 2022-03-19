@@ -12,7 +12,7 @@ public class Countries implements IEntities
 {
     private Integer id;
     private String name;
-    private ArrayList<String> columnNames;
+    private ArrayList<String> columnNames=new ArrayList<>();
 
     public Countries()
     {

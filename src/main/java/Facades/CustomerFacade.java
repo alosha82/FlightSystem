@@ -6,7 +6,8 @@ import entities.Tickets;
 import logintoken.LoginToken;
 import lombok.Getter;
 
-import java.util.ArrayList;
+import java.util.*;
+
 @Getter
 public class CustomerFacade extends FacadeBase
 {
@@ -66,6 +67,8 @@ public class CustomerFacade extends FacadeBase
         columns.get(0).add("Id");
         columns.get(0).add("Flight_Id");
         columns.get(0).add("Customer_Id");
+        Map<String, Collection<String>> tablesToColumnsMap=new HashMap<>();
+        tablesToColumnsMap.put("Tickets", List.of("Id", "Flight_Id","Customer_Id"));
         if (token.getId()==null)
         {
             ticketsDAO.closeAllDAOConnections();
@@ -73,7 +76,7 @@ public class CustomerFacade extends FacadeBase
         }
         else
         {
-            tickets = ticketsDAO.joinTwoByWithWhereClause(columns, "Customer_Id", "Customers", "Id"
+            tickets = ticketsDAO.joinTwoByWithWhereClause(tablesToColumnsMap, "Customer_Id", "Customers", "Id"
                     , new Tickets(), "WHERE \"Customers\".\"Id\"=" + token.getId());
             ticketsDAO.closeAllDAOConnections();
             return tickets;

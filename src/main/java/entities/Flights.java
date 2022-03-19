@@ -20,7 +20,7 @@ public class Flights implements IEntities
     //Todo Subject to change
     private Timestamp landingTime;
     private Integer remainingTickets;
-    private ArrayList<String> columnNames;
+    private ArrayList<String> columnNames=new ArrayList<>();
 
     public Flights()
     {

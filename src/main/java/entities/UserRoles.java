@@ -14,7 +14,7 @@ public class UserRoles implements IEntities
 {
     private Integer id;
     private String roleName;
-    private ArrayList<String> columnNames;
+    private ArrayList<String> columnNames=new ArrayList<>();
 
     public UserRoles()
     {

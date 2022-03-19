@@ -14,7 +14,7 @@ public class Tickets implements IEntities
     private Long id;
     private Long flightId;
     private Long costumersId;
-    private ArrayList<String> columnNames;
+    private ArrayList<String> columnNames=new ArrayList<>();
 
     public Tickets()
     {

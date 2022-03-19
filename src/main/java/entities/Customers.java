@@ -19,7 +19,7 @@ public class Customers implements IEntities
     private String phoneNumber;
     private String creditCardNumber;
     private Long userId;
-    private ArrayList<String> columnNames;
+    private ArrayList<String> columnNames=new ArrayList<>();
 
     public Customers()
     {

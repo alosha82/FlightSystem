@@ -6,7 +6,7 @@ import logintoken.LoginToken;
 import lombok.SneakyThrows;
 
 import java.sql.ResultSet;
-import java.util.ArrayList;
+import java.util.*;
 
 public class AnonymousFacade extends FacadeBase
 {
@@ -14,14 +14,11 @@ public class AnonymousFacade extends FacadeBase
     public FacadeBase login(String username,String password) throws Exception
     {
         GenericDAO<Users> usersDAO = new GenericDAO<>("Users",new Users());
-        ArrayList<ArrayList<String>> columns = new ArrayList<>();
-        columns.add(new ArrayList<>());
-        columns.add(new ArrayList<>());
-        columns.get(0).add("Id");
-        columns.get(0).add("Username");
-        columns.get(0).add("Password");
-        columns.get(1).add("Role_Name");
-        ResultSet joined = usersDAO.joinTwoByWithWhereClauseGetResultSet(columns,"User_Role","User_Roles","Id"
+        Map<String, Collection<String>> tablesToColumnsMap=new HashMap<>();
+        tablesToColumnsMap.put("Users", List.of("Id", "Username","Password"));
+        tablesToColumnsMap.put("User_Roles", List.of("Role_Name"));
+
+        ResultSet joined = usersDAO.joinTwoByWithWhereClauseGetResultSet(tablesToColumnsMap,"User_Role","User_Roles","Id"
                 , "WHERE \"Users\".\"Username\"=\'"+username+"\' AND \"Users\".\"Password\"=\'"+password+"\'");
         if (joined.next())
         {

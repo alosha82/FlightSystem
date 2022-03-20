@@ -2,6 +2,7 @@ package Facades;
 
 import dao.GenericDAO;
 import entities.Customers;
+import entities.Flights;
 import entities.Tickets;
 import logintoken.LoginToken;
 import lombok.Getter;
@@ -9,7 +10,7 @@ import lombok.Getter;
 import java.util.*;
 
 @Getter
-public class CustomerFacade extends FacadeBase
+public class CustomerFacade extends AnonymousFacade
 {
 
     LoginToken token;
@@ -35,6 +36,7 @@ public class CustomerFacade extends FacadeBase
         if (token.getId()!=ticket.getCostumersId())
             throw new Exception("You can not add tickets of another customer");
         ArrayList<Tickets> tickets;
+        GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights",new Flights());
         GenericDAO<Tickets> ticketsDAO = new GenericDAO<>("Tickets",new Tickets());
         tickets=ticketsDAO.getAll();
         for (int i = 0; i < tickets.size(); i++)
@@ -43,6 +45,10 @@ public class CustomerFacade extends FacadeBase
                 throw new Exception("That ticket is already in the DataBase");
         }
         ticketsDAO.add(ticket);
+        Flights flightOfTheTicket = flightsDAO.getByFieldType(""+ticket.getFlightId(),"Id");
+        flightOfTheTicket.setRemainingTickets(flightOfTheTicket.getRemainingTickets()-1);
+        flightsDAO.update(flightOfTheTicket,flightOfTheTicket.getId());
+        flightsDAO.closeAllDAOConnections();
         ticketsDAO.closeAllDAOConnections();
     }
 
@@ -51,10 +57,17 @@ public class CustomerFacade extends FacadeBase
         if (token.getId()!=ticket.getCostumersId())
             throw new Exception("You can not remove tickets of another customer");
         GenericDAO<Tickets> ticketsDAO = new GenericDAO<>("Tickets",new Tickets());
+        GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights",new Flights());
         if (ticket.getId()==null)
             System.out.println("Id must be provided inside the ticket. No removal was made in the DataBase");
         else
+        {
             ticketsDAO.remove(ticket.getId());
+            Flights flightOfTheTicket = flightsDAO.getByFieldType(""+ticket.getFlightId(),"Id");
+            flightOfTheTicket.setRemainingTickets(flightOfTheTicket.getRemainingTickets()+1);
+            flightsDAO.update(flightOfTheTicket,flightOfTheTicket.getId());
+        }
+        flightsDAO.closeAllDAOConnections();
         ticketsDAO.closeAllDAOConnections();
     }
 

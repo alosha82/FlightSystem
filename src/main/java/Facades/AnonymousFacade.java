@@ -1,6 +1,7 @@
 package Facades;
 
 import dao.GenericDAO;
+import entities.Customers;
 import entities.Users;
 import logintoken.LoginToken;
 import lombok.SneakyThrows;
@@ -11,7 +12,7 @@ import java.util.*;
 public class AnonymousFacade extends FacadeBase
 {
     @SneakyThrows
-    public FacadeBase login(String username,String password) throws Exception
+    public AnonymousFacade login(String username,String password) throws Exception
     {
         GenericDAO<Users> usersDAO = new GenericDAO<>("Users",new Users());
         Map<String, Collection<String>> tablesToColumnsMap=new HashMap<>();
@@ -49,5 +50,10 @@ public class AnonymousFacade extends FacadeBase
         {
             throw new Exception("No Such username or password found in database");
         }
+    }
+
+    public void addCustomer(Users user, Customers customer)
+    {
+        createNewUser(user,customer);
     }
 }

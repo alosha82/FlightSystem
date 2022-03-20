@@ -10,7 +10,7 @@ import lombok.Getter;
 import java.util.*;
 
 @Getter
-public class AirlineFacade extends FacadeBase
+public class AirlineFacade extends AnonymousFacade
 {
     LoginToken token;
 
@@ -54,8 +54,8 @@ public class AirlineFacade extends FacadeBase
             if ((flights.get(i).getAirlineCompanyId()==flight.getAirlineCompanyId())
                     &&(flights.get(i).getOriginCountryId()==flight.getOriginCountryId())
                     &&(flights.get(i).getDestinationCountryId()==flight.getDestinationCountryId())
-                    &&(flights.get(i).getDepartureTime()==flight.getDepartureTime())
-                    &&(flights.get(i).getLandingTime()==flight.getLandingTime())
+                    &&(flights.get(i).getDepartureTime().equals(flight.getDepartureTime()))
+                    &&(flights.get(i).getLandingTime().equals(flight.getLandingTime()))
                     &&(flights.get(i).getRemainingTickets()==flight.getRemainingTickets()))
             {
                 flightsDAO.closeAllDAOConnections();

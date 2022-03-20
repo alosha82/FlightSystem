@@ -11,23 +11,28 @@ import lombok.Setter;
 import java.util.ArrayList;
 @Getter
 @Setter
-public class AdministratorFacade extends FacadeBase
+public class AdministratorFacade extends AnonymousFacade
 {
     LoginToken token;
-
+    GenericDAO<Administrators> administratorsDAO = new GenericDAO<>("Administrators",new Administrators());
+    Administrators administrators = administratorsDAO.getById(token.getId());
     public AdministratorFacade(LoginToken token) {this.token = token;}
 
-    public ArrayList<Customers> getAllCustomers()
+    public ArrayList<Customers> getAllCustomers() throws Exception
     {
+        if(administrators==null)
+            throw new Exception("No administrators whit your id");
         ArrayList<Customers> customers;
-        GenericDAO<Customers> customersDAO = new GenericDAO<>("Customers",new Customers());
-        customers=customersDAO.getAll();
+        GenericDAO<Customers> customersDAO = new GenericDAO<>("Customers", new Customers());
+        customers = customersDAO.getAll();
         customersDAO.closeAllDAOConnections();
         return customers;
     }
 
     public void addCustomer(Customers customer) throws Exception
     {
+        if(administrators==null)
+            throw new Exception("No administrators whit your id");
         ArrayList<Customers> customers;
         GenericDAO<Customers> customersDAO = new GenericDAO<>("Customers",new Customers());
         customers=customersDAO.getAll();
@@ -50,6 +55,8 @@ public class AdministratorFacade extends FacadeBase
 
     public void addAirline(AirlineCompanies airlineCompany) throws Exception
     {
+        if(administrators==null)
+            throw new Exception("No administrators whit your id");
         ArrayList<AirlineCompanies> airlineCompanies;
         GenericDAO<AirlineCompanies> airlineCompaniesDAO = new GenericDAO<>("AirlineCompanies",new AirlineCompanies());
         airlineCompanies=airlineCompaniesDAO.getAll();
@@ -69,6 +76,8 @@ public class AdministratorFacade extends FacadeBase
 
     public void addAdministrator(Administrators administrator) throws Exception
     {
+        if(administrators==null)
+            throw new Exception("No administrators whit your id");
         ArrayList<Administrators> administrators;
         GenericDAO<Administrators> administratorsDAO = new GenericDAO<>("Administrators",new Administrators());
         administrators=administratorsDAO.getAll();
@@ -86,33 +95,54 @@ public class AdministratorFacade extends FacadeBase
         administratorsDAO.closeAllDAOConnections();
     }
 
-    public void removeCustomer(Customers customer)
+    public void removeCustomer(Customers customer) throws Exception
     {
+        if(administrators==null)
+            throw new Exception("No administrators whit your id");
         GenericDAO<Customers> customersDAO = new GenericDAO<>("Customers",new Customers());
         if (customer.getId()==null)
             System.out.println("Id must be provided inside the ticket. No removal was made in the DataBase");
-        else
-            customersDAO.remove(customer.getId());
+        else {
+            try {
+                customersDAO.remove(customer.getId());
+            } catch (Exception e) {
+                System.out.println("Remove all other connections first" );
+            }
+        }
         customersDAO.closeAllDAOConnections();
     }
 
-    public void removeAirline(AirlineCompanies airlineCompany)
+    public void removeAirline(AirlineCompanies airlineCompany) throws Exception
     {
+        if(administrators==null)
+            throw new Exception("No administrators whit your id");
         GenericDAO<AirlineCompanies> airlineCompaniesDAO = new GenericDAO<>("AirlineCompanies",new AirlineCompanies());
         if (airlineCompany.getId()==null)
             System.out.println("Id must be provided inside the ticket. No removal was made in the DataBase");
-        else
-            airlineCompaniesDAO.remove(airlineCompany.getId());
+        else {
+            try {
+                airlineCompaniesDAO.remove(airlineCompany.getId());
+            } catch (Exception e) {
+                System.out.println("Remove all other connections first" );
+            }
+        }
         airlineCompaniesDAO.closeAllDAOConnections();
     }
 
-    public void removeAdministrator(Administrators administrator)
+    public void removeAdministrator(Administrators administrator) throws Exception
     {
+        if(administrators==null)
+            throw new Exception("No administrators whit your id");
         GenericDAO<Administrators> administratorsDAO = new GenericDAO<>("Administrators",new Administrators());
         if (administrator.getId()==null)
             System.out.println("Id must be provided inside the ticket. No removal was made in the DataBase");
-        else
-            administratorsDAO.remove(administrator.getId());
+        else {
+            try {
+                administratorsDAO.remove(administrator.getId());
+            } catch (Exception e) {
+                System.out.println("Remove all other connections first" );
+            }
+        }
         administratorsDAO.closeAllDAOConnections();
     }
 }

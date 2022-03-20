@@ -26,10 +26,11 @@ public class GenericDAO<T extends IEntities>
         this.tableName=tableName;
         this.entityType = tableType;
         this.arrayOfEntityType = new ArrayList<>();
-        //getAll();
     }
 
     @SneakyThrows
+    /** Gets everything from a table and saves in the proper entity.
+     * Returns: Arraylist of the DAO's type(entity)  */
     public ArrayList<T> getAll()
     {
         ResultSet result= stm.executeQuery("select * from "+tableName);
@@ -41,13 +42,46 @@ public class GenericDAO<T extends IEntities>
         result.close();
         return arrayOfEntityType;
     }
+    @SneakyThrows
+    /** Executes an SQL function.
+     * Returns: ResultSet
+     * the caller needs to close the ResultSet connection */
+    public ResultSet runSQLFunctionGetResultSet(String functionName, List<String> properlyFormattedParameters)
+    {
+        String stringToExecute ="SELECT * FROM "+functionName+"(";
+        for (int i = 0; i < properlyFormattedParameters.size(); i++) {
+            stringToExecute=stringToExecute+properlyFormattedParameters.get(i)+",";
+        }
+        stringToExecute = stringToExecute.substring(0,stringToExecute.length()-1);
+        return stm.executeQuery(stringToExecute);
+    }
 
     @SneakyThrows
+    /** Executes an SQL function.
+     * Has to receive an entity That supports the output table of the function.
+     * Returns: ArrayList of the received entity.
+     *  */
+    public <V extends IEntities> ArrayList<V> runSQLFunction(String functionName, List<String> properlyFormattedParameters,V typeOfEntity)
+    {
+        String stringToExecute ="SELECT * FROM "+functionName+"(";
+        for (int i = 0; i < properlyFormattedParameters.size(); i++) {
+            stringToExecute=stringToExecute+properlyFormattedParameters.get(i)+",";
+        }
+        stringToExecute = stringToExecute.substring(0,stringToExecute.length()-1);
+        return executeQueryAndSaveInTheProperEntity(stringToExecute,typeOfEntity);
+    }
+
+    @SneakyThrows
+    /** Gets one line from the table because the id is unique.
+     * Returns:  DAO's type(entity)  */
     public T getById(long id)
     {
         return  getByFieldType("Id",""+id);
     }
+
     @SneakyThrows
+    /** Gets only one line from the table(the first one) matching the parameter. If needed more the one value use getByFieldTypeArr
+     * Returns:  DAO's type(entity)  */
     public T getByFieldType(String formattedByPostgresSQLStandardsParameter,String fieldName)
     {
         ResultSet result= stm.executeQuery("select * from "+tableName+" WHERE "+fieldName+"="+formattedByPostgresSQLStandardsParameter);
@@ -57,37 +91,35 @@ public class GenericDAO<T extends IEntities>
         result.close();
         return entityType;
     }
+//   Those functions implemented by this method trough GenericDOA<Flights> because they might return more than one value
+//    getFlightsByOriginCountryId(country_id)
+//    getFlightsByDestinationCountryId(country_id)
+//    getFlightsByDepartureDate(date)
+//    getFlightsByLandingDate(date)
     @SneakyThrows
-    /*
-    Possible field types: Numerical,Text,Date
-    */
-    public T getByFieldType1(String fieldName,String parameter,String sqlFieldType)
+    /** Gets every line from the table matching the parameter.
+     * Returns: Arraylist of the DAO's type(entity)  */
+    public ArrayList<T> getByFieldTypeArr(String formattedByPostgresSQLStandardsParameter,String fieldName)
     {
-        switch (sqlFieldType)
-        {
-            case("Numerical")->parameter=parameter;
-            case("Text")->parameter="\'"+parameter+"\'";
-            //TODO- figure out how to give date in SQL query
-            case("Date")->parameter="\'"+parameter+"\'";
-        }
-        ResultSet result= stm.executeQuery("select * from "+tableName+" WHERE "+fieldName+"="+parameter);
-        //needed because it starts on wrong column
-        result.next();
-        entityType.setAll(result);
-        result.close();
-        return entityType;
+        String stringToExecute ="select * from "+tableName+" WHERE "+fieldName+"="+formattedByPostgresSQLStandardsParameter;
+        // might be a problem because the entityType might already have values.(might be problematic if the table has null fields. not sure)
+        return executeQueryAndSaveInTheProperEntity(stringToExecute,entityType);
     }
-    @SneakyThrows
-    public void remove(long id)
+    /** Removes a line from the table by its id.
+     * Will fail if the entity in the table has somebody pointing to it  */
+    public void remove(long id) throws Exception
     {
         stm.executeUpdate("DELETE from "+tableName+" WHERE id="+id);
         System.out.println("done");
     }
     @SneakyThrows
+    /** Adds an entity to the table.
+     * Will fail if the entity has the same values for the columns marked unique  */
     public void add(T typeOfEntity)
     {
         ArrayList<String> fieldsInStringForm = typeOfEntity.getAllExceptIdInStringFormat();
         ArrayList<String> columnNames = typeOfEntity.getColumnNames();
+        //TODO ask if the quotes are needed in yes add them
         //INSERT INTO Administrators (first_name,last_name,user_id) VALUES (
         String stringForExecution = "INSERT INTO "+tableName+" (";
         for (int i = 1; i < columnNames.size(); i++)
@@ -104,6 +136,8 @@ public class GenericDAO<T extends IEntities>
         stm.executeUpdate(stringForExecution+")");
     }
     @SneakyThrows
+    /** Updates an entity to the table.
+     * Can fail*/
     public void update(T typeOfEntity,long id)
     {
         ArrayList<String> columnNames = typeOfEntity.getColumnNames();
@@ -117,15 +151,22 @@ public class GenericDAO<T extends IEntities>
         stm.executeUpdate(stringForUpdate+" WHERE id="+id);
     }
 
-    /** SELECT "Customers"."First_Name","Customers"."Last_Name"
+    /** Sample to the output query SELECT "Customers"."First_Name","Customers"."Last_Name"
      FROM "Tickets"
      JOIN "Flights" ON "Tickets"."Flight_Id" = "Flights"."Id"  JOIN "Customers" ON "Tickets"."Customer_Id" = "Customers"."Id"
-     join "users" on "Customers.fg="Users"."id"
+     JOIN "Users" on "Customers"."User_Id="Users"."id"
      */
+    /**Generates a query to the join function.
+     * Returns: String(the generated query)
+     * Parameters:
+     * tablesToColumnsMap - Map of table names to a collection of the names of the columns you want to see
+     * from - the name of the table after FROM statement
+     * foreignFieldToOriginalField - Map with two pares in it. The pairs are the parameters from each side of the = in the condition part
+     * whereClose - the ware condition after join. Might be passed as "" if not needed*/
     @SneakyThrows
     private String generateJoinMultipleByQuery(Map<String,Collection<String>> tablesToColumnsMap,
                                               String from,
-                                              Map<Pair<String, String>, Pair<String, String>> foreignFieldToOriginalField,
+                                              LinkedHashMap<Pair<String, String>, Pair<String, String>> foreignFieldToOriginalField,
                                               String whereClause)
     {
 
@@ -153,11 +194,13 @@ public class GenericDAO<T extends IEntities>
         String stringToExecute = String.join(" ", selectContents, fromContents, joinContents);
         return stringToExecute+whereClause;
     }
-
+    /** Adds quotes */
     private String quote(String unquoted) {return "\""+unquoted+"\"";}
+    /** Quotes the strings then joins them by a dot */
     private String strDotStrQuoted(String str1, String str2) {return quote(str1)+"."+quote(str2);}
 
     @SneakyThrows
+    /** Executes a query and saves the result in an array list of the received entity type. Note: the type may not be the same as the DAO's*/
     private <V extends IEntities> ArrayList<V> executeQueryAndSaveInTheProperEntity(String query,V typeOfEntity)
     {
         ArrayList<V> ArrayListOfTypeOfEntity=new ArrayList<>();
@@ -172,74 +215,128 @@ public class GenericDAO<T extends IEntities>
     }
     /**
     function joinTwoBy, and its brothers in name, joins the current type of the DAO with another table.
-    allColumnsToDisplay should be ordered in such order: first array index is an array of columns of this table that you want to select
-    the next array index is an array of columns of the other table that you want to select
-    To work properly it needs an entity that supports the join with the correct number of columns and types, that entity should be transferred typeOfEntity.
+     Returns:An array list of the received entity type. Note: the type may not be the same as the DAO's
+     * Parameters:
+     * tablesToColumnsToDisplayMap - Map of table names to a collection of the names of the columns you want to see
+     * thisFK - Name of the column that is the foreign key of this DAO table
+     * otherTableName - Name of the table you want to join
+     * otherPK - Name of the column that is the primary key of the other table
+     * typeOfEntity - Type of entity that can house inside the join output by your specification
     */
-    public<V extends IEntities> ArrayList<V> joinTwoBy(Map<String,Collection<String>> tablesToColumnsTODisplayMap,
+    public<V extends IEntities> ArrayList<V> joinTwoBy(Map<String,Collection<String>> tablesToColumnsToDisplayMap,
                                                        String thisFK,
                                                        String otherTableName,
                                                        String otherPK,
                                                        V typeOfEntity)
     {
-        return joinTwoByWithWhereClause(tablesToColumnsTODisplayMap,thisFK,otherTableName,otherPK,typeOfEntity,"");
+        return joinTwoByWithWhereClause(tablesToColumnsToDisplayMap,thisFK,otherTableName,otherPK,typeOfEntity,"");
     }
-
+    /**
+     function joinTwoBy, and its brothers in name, joins the current type of the DAO with another table.
+     Returns: ResultSet
+     * Parameters:
+     * tablesToColumnsToDisplayMap - Map of table names to a collection of the names of the columns you want to see
+     * thisFK - Name of the column that is the foreign key of this DAO table
+     * otherTableName - Name of the table you want to join
+     * otherPK - Name of the column that is the primary key of the other table
+     */
+    /**the caller needs to close the ResultSet connection */
     public ResultSet joinTwoByGetResultSet(Map<String,Collection<String>> tablesToColumnsTODisplayMap,String thisFK,String otherTableName,String otherPK)
     {
         return joinTwoByWithWhereClauseGetResultSet(tablesToColumnsTODisplayMap,thisFK,otherTableName,otherPK,"");
     }
-
+    /**
+     function joinTwoBy, and its brothers in name, joins the current type of the DAO with another table.
+     Returns:An array list of the received entity type. Note: the type may not be the same as the DAO's
+     * Parameters:
+     * tablesToColumnsToDisplayMap - Map of table names to a collection of the names of the columns you want to see
+     * thisFK - Name of the column that is the foreign key of this DAO table
+     * otherTableName - Name of the table you want to join
+     * otherPK - Name of the column that is the primary key of the other table
+     * typeOfEntity - Type of entity that can house inside the join output by your specification
+     * whereClause -the ware condition after join. Might be passed as "" if not needed
+     */
     public <V extends IEntities> ArrayList<V> joinTwoByWithWhereClause(Map<String,Collection<String>> tablesToColumnsTODisplayMap,
                                                                        String thisFK,String otherTableName,
                                                                        String otherPK,
                                                                        V typeOfEntity,
                                                                        String whereClause)
     {
-        Map<Pair<String,String>,Pair<String,String>> foreignToOrigins=new HashMap<>();
+        LinkedHashMap<Pair<String,String>,Pair<String,String>> foreignToOrigins=new LinkedHashMap<>();
         foreignToOrigins.put(new Pair<>(tableName, thisFK), new Pair<>(otherTableName, otherPK));
-        String stringToExecute = generateJoinMultipleByQuery(tablesToColumnsTODisplayMap,tableName,foreignToOrigins,whereClause);
+        String stringToExecute = generateJoinMultipleByQuery(tablesToColumnsTODisplayMap,otherTableName,foreignToOrigins,whereClause);
         return executeQueryAndSaveInTheProperEntity(stringToExecute,typeOfEntity);
     }
 
     @SneakyThrows
-    /*the caller needs to close the ResultSet connection */
+    /**
+     function joinTwoBy, and its brothers in name, joins the current type of the DAO with another table.
+     Returns: ResultSet
+     * Parameters:
+     * tablesToColumnsToDisplayMap - Map of table names to a collection of the names of the columns you want to see
+     * thisFK - Name of the column that is the foreign key of this DAO table
+     * otherTableName - Name of the table you want to join
+     * otherPK - Name of the column that is the primary key of the other table
+     */
+    /**the caller needs to close the ResultSet connection */
     public ResultSet joinTwoByWithWhereClauseGetResultSet(Map<String,Collection<String>> tablesToColumnsTODisplayMap,
                                                           String thisFK,
                                                           String otherTableName,
                                                           String otherPK,
                                                           String whereClause)
     {
-        Map<Pair<String,String>,Pair<String,String>> foreignToOrigins=new HashMap<>();
+        LinkedHashMap<Pair<String,String>,Pair<String,String>> foreignToOrigins=new LinkedHashMap<>();
         foreignToOrigins.put(new Pair<>(tableName, thisFK), new Pair<>(otherTableName, otherPK));
-        String stringToExecute = generateJoinMultipleByQuery(tablesToColumnsTODisplayMap,tableName,foreignToOrigins,whereClause);
+        String stringToExecute = generateJoinMultipleByQuery(tablesToColumnsTODisplayMap,otherTableName,foreignToOrigins,whereClause);
+        System.out.println(stringToExecute);
         return stm.executeQuery(stringToExecute);
     }
 
-    /*
-    function joinMultipleBy, and its brothers in name, joins the current type of the DAO with other tables.
-    allColumnsToDisplay should be ordered in such order: first array index is an array of columns of this table that you want to select
-    the next array index is an array of columns of the first table in otherTablesNames array  that you want to select and so on
-    To work properly it needs an entity that supports the join with the correct number of columns and types, that entity should be transferred typeOfEntity.
-    */
+    /**function joinMultipleBy, and its brothers in name, joins the multiple tables(no connection to this DAO's table name).
+     * Returns: An array list of the received entity type. Note: the type may not be the same as the DAO's
+     * Parameters:
+     * tablesToColumnsMap - Map of table names to a collection of the names of the columns you want to see
+     * from - the name of the table after FROM statement
+     * foreignFieldToOriginalField - Map with two pares in it. The pairs are the parameters from each side of the = in the condition part
+     * typeOfEntity - Type of entity that can house inside the join output by your specification
+     */
     public <V extends IEntities> ArrayList<V> joinMultipleBy(Map<String,Collection<String>> tablesToColumnsTODisplayMap,
                                                              String from,
-                                                             Map<Pair<String, String>, Pair<String, String>> foreignFieldToOriginalField,
+                                                             LinkedHashMap<Pair<String, String>, Pair<String, String>> foreignFieldToOriginalField,
                                                              V typeOfEntity)
     {
         return joinMultipleByWithWhereClause(tablesToColumnsTODisplayMap,from,foreignFieldToOriginalField,typeOfEntity,"");
     }
-
+    /**function joinMultipleBy, and its brothers in name, joins the multiple tables(no connection to this DAO's table name).
+     * Returns: An array list of the received entity type. Note: the type may not be the same as the DAO's
+     * Parameters:
+     * tablesToColumnsMap - Map of table names to a collection of the names of the columns you want to see
+     * from - the name of the table after FROM statement
+     * foreignFieldToOriginalField - Map with two pares in it. The pairs are the parameters from each side of the = in the condition part
+     */
+    /**the caller needs to close the ResultSet connection */
     public ResultSet joinMultipleByGetResultSet(Map<String,Collection<String>> tablesToColumnsTODisplayMap,
                                                 String from,
-                                                Map<Pair<String, String>, Pair<String, String>> foreignFieldToOriginalField)
+                                                LinkedHashMap<Pair<String, String>, Pair<String, String>> foreignFieldToOriginalField)
     {
         return joinMultipleByWithWhereClauseGetResultSet(tablesToColumnsTODisplayMap,from,foreignFieldToOriginalField,"");
     }
-
+    //TODO create entities for those implementations;
+//   Those functions implemented by this method
+//    getAirlinesByCountry(country_id)
+//    getFlightsByCustomer(customer)
+    /**function joinMultipleBy, and its brothers in name, joins the multiple tables(no connection to this DAO's table name).
+     * Returns: An array list of the received entity type. Note: the type may not be the same as the DAO's
+     * Parameters:
+     * tablesToColumnsMap - Map of table names to a collection of the names of the columns you want to see
+     * from - the name of the table after FROM statement
+     * foreignFieldToOriginalField - Map with two pares in it. The pairs are the parameters from each side of the = in the condition part
+     * typeOfEntity - Type of entity that can house inside the join output by your specification
+     * whereClose - the ware condition after join. Might be passed as "" if not needed
+     */
     public <V extends IEntities> ArrayList<V> joinMultipleByWithWhereClause(Map<String,Collection<String>> tablesToColumnsTODisplayMap,
                                                                             String from,
-                                                                            Map<Pair<String, String>, Pair<String, String>> foreignFieldToOriginalField,
+                                                                            LinkedHashMap<Pair<String, String>, Pair<String, String>> foreignFieldToOriginalField,
                                                                             V typeOfEntity,
                                                                             String whereClause)
     {
@@ -248,10 +345,18 @@ public class GenericDAO<T extends IEntities>
     }
 
     @SneakyThrows
-    /*the caller needs to close the ResultSet connection */
+    /**function joinMultipleBy, and its brothers in name, joins the multiple tables(no connection to this DAO's table name).
+     * Returns: An array list of the received entity type. Note: the type may not be the same as the DAO's
+     * Parameters:
+     * tablesToColumnsMap - Map of table names to a collection of the names of the columns you want to see
+     * from - the name of the table after FROM statement
+     * foreignFieldToOriginalField - Map with two pares in it. The pairs are the parameters from each side of the = in the condition part
+     * whereClose - the ware condition after join. Might be passed as "" if not needed
+     */
+    /**the caller needs to close the ResultSet connection */
     public ResultSet joinMultipleByWithWhereClauseGetResultSet(Map<String,Collection<String>> tablesToColumnsTODisplayMap,
                                                                String from,
-                                                               Map<Pair<String, String>, Pair<String, String>> foreignFieldToOriginalField,
+                                                               LinkedHashMap<Pair<String, String>, Pair<String, String>> foreignFieldToOriginalField,
                                                                String whereClause)
     {
         String query = generateJoinMultipleByQuery(tablesToColumnsTODisplayMap,from,foreignFieldToOriginalField,whereClause);
@@ -259,6 +364,7 @@ public class GenericDAO<T extends IEntities>
     }
 
     @SneakyThrows
+    /**closes connection */
     public void closeAllDAOConnections()
     {
         connection.close();

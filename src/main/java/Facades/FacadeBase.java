@@ -25,7 +25,7 @@ public abstract class FacadeBase
         GenericDAO<AirlineCompanies> airlineCompaniesDAO = new GenericDAO<>("AirlineCompanies", new AirlineCompanies());
         ArrayList<AirlineCompanies> listOfAirlinesByCountry=airlineCompaniesDAO.getByFieldTypeArr(""+countryId,"Country_Id");
         airlineCompaniesDAO.closeAllDAOConnections();
-        return listOfAirlinesByCountry
+        return listOfAirlinesByCountry;
     }
 
     public ArrayList<Flights> getAllFlights()

@@ -32,8 +32,8 @@ public class Main
 //        foreignsToOrigins.put(new Pair<>("Flights", "Origin_Country_Id"), new Pair<>("Country", "Id"));
 //        t.joinTwoByGetResultSet(tablesToColumnsMap1,"Origin_Country_Id","Country","Id");
 
-        CustomerFacade cf = new CustomerFacade(new LoginToken());
-        cf.createNewUser(new Users(),new Flights());
+//        CustomerFacade cf = new CustomerFacade(new LoginToken());
+//        cf.createNewUser(new Users(),new Flights());
 
 
 

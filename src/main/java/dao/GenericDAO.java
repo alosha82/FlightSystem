@@ -60,7 +60,7 @@ public class GenericDAO<T extends IEntities>
     }
 
     @SneakyThrows
-    /** Executes an SQL function. used to execute get_flights_by_parameters from sql stored functions
+    /** Executes an SQL function. Used to execute get_flights_by_parameters from sql stored functions
      * Has to receive an entity That supports the output table of the function.
      * Returns: ArrayList of the received entity.
      *  */

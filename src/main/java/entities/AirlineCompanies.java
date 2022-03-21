@@ -61,7 +61,9 @@ public class AirlineCompanies implements IEntities
         setCountryId(result.getInt(columnNames.get(i++)));
         setUserId(result.getLong(columnNames.get(i++)));
     }
-    public ArrayList<String> getAllExceptIdInStringFormat()
+    /**Returns list of values that were set in string format.
+     *columnNames initiated with ia Id column as a placeholder*/
+    public ArrayList<String> getAllNeededValuesExceptIdInStringFormat()
     {
         ArrayList<String> getterArray = new ArrayList<>();
         if (columnNames.contains("Name"))

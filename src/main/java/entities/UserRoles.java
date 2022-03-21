@@ -46,7 +46,9 @@ public class UserRoles implements IEntities
         setRoleName("\'"+result.getString(columnNames.get(i++))+"\'");
     }
 
-    public ArrayList<String> getAllExceptIdInStringFormat()
+    /**Returns list of values that were set in string format.
+     *columnNames initiated with ia Id column as a placeholder*/
+    public ArrayList<String> getAllNeededValuesExceptIdInStringFormat()
     {
         ArrayList<String> getterArray = new ArrayList<>();
         if(columnNames.contains("Role_Name"))

@@ -71,6 +71,7 @@ public class CustomerFacade extends AnonymousFacade
         ticketsDAO.closeAllDAOConnections();
     }
 
+    /**Joins Tickets with Customers and filters the joined entity by Customers.Id*/
     public ArrayList<Tickets> getMyTickets() throws Exception
     {
         ArrayList<Tickets> tickets;

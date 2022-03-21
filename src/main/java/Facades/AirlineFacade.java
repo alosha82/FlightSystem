@@ -27,7 +27,19 @@ public class AirlineFacade extends AnonymousFacade
         if (airlineCompany.getId()==null)
             System.out.println("Id must be provided inside the airlineCompany. No update was made to the DataBase");
         else
+        {
+            if (airlineCompany.getUserId()<0)
+            {
+                airlineCompaniesDAO.closeAllDAOConnections();
+                throw new Exception("No negative users present. Can not update that airline company to the DataBase");
+            }
+            if (airlineCompany.getCountryId()<0)
+            {
+                airlineCompaniesDAO.closeAllDAOConnections();
+                throw new Exception("No negative countries present. Can not update that airline company to the DataBase\"");
+            }
             airlineCompaniesDAO.update(airlineCompany,airlineCompany.getId());
+        }
         airlineCompaniesDAO.closeAllDAOConnections();
     }
     public void updateFlight (Flights flight) throws Exception
@@ -38,7 +50,24 @@ public class AirlineFacade extends AnonymousFacade
         if (flight.getId()==null)
             System.out.println("Id must be provided inside the flight. No update was made to the DataBase");
         else
+        {
+            if (flight.getRemainingTickets()<0)
+            {
+                flightsDAO.closeAllDAOConnections();
+                throw new Exception("Remaining tickets is negative. Can not add that flight to the DataBase");
+            }
+            if (flight.getOriginCountryId()==flight.getDestinationCountryId())
+            {
+                flightsDAO.closeAllDAOConnections();
+                throw new Exception("We do net provide flights within the country. Can not add that flight to the DataBase");
+            }
+            if (flight.getLandingTime().before(flight.getDepartureTime()))
+            {
+                flightsDAO.closeAllDAOConnections();
+                throw new Exception("There is a mix up in your flight times. it is impossible to land before you take flight. Can not add that flight to the DataBase");
+            }
             flightsDAO.update(flight,flight.getId());
+        }
         flightsDAO.closeAllDAOConnections();
     }
 
@@ -93,21 +122,14 @@ public class AirlineFacade extends AnonymousFacade
         ticketsDAO.closeAllDAOConnections();
     }
 
+    /**Joins flights with airlineCompanies and filters the joined entity by Airline_Company_Id*/
     public ArrayList<Flights> getMyFlights() throws Exception
     {
         ArrayList<Flights> flights;
         GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights",new Flights());
-        ArrayList<ArrayList<String>> columns = new ArrayList<>();
-        columns.add(new ArrayList<>());
-        columns.get(0).add("Id");
-        columns.get(0).add("Airline_Company_Id");
-        columns.get(0).add("Origin_Country_Id");
-        columns.get(0).add("Destination_Country_Id");
-        columns.get(0).add("Departure_time");
-        columns.get(0).add("Landing_time");
-        columns.get(0).add("Remaining_Tickets");
         Map<String, Collection<String>> tablesToColumnsMap=new HashMap<>();
-        tablesToColumnsMap.put("Flights", List.of("Id", "Airline_Company_Id","Origin_Country_Id","Destination_Country_Id","Departure_time","Landing_time","Remaining_Tickets"));
+        tablesToColumnsMap.put("Flights", List.of("Id", "Airline_Company_Id","Origin_Country_Id","Destination_Country_Id"
+                ,"Departure_time","Landing_time","Remaining_Tickets"));
         if (token.getId()==null)
         {
             flightsDAO.closeAllDAOConnections();
@@ -116,7 +138,7 @@ public class AirlineFacade extends AnonymousFacade
         else
         {
             flights = flightsDAO.joinTwoByWithWhereClause(tablesToColumnsMap,"Airline_Company_Id","AirlineCompanies","Id"
-                    ,new Flights(),"WHERE \"Customers\".\"Id\"="+token.getId());
+                    ,new Flights(),"WHERE \"Flights\".\"Airline_Company_Id\"="+token.getId());
             flightsDAO.closeAllDAOConnections();
             return flights;
         }

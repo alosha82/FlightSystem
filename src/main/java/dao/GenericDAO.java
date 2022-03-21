@@ -117,7 +117,7 @@ public class GenericDAO<T extends IEntities>
      * Will fail if the entity has the same values for the columns marked unique  */
     public void add(T typeOfEntity)
     {
-        ArrayList<String> fieldsInStringForm = typeOfEntity.getAllExceptIdInStringFormat();
+        ArrayList<String> fieldsInStringForm = typeOfEntity.getAllNeededValuesExceptIdInStringFormat();
         ArrayList<String> columnNames = typeOfEntity.getColumnNames();
         //TODO ask if the quotes are needed in yes add them
         //INSERT INTO Administrators (first_name,last_name,user_id) VALUES (
@@ -141,7 +141,7 @@ public class GenericDAO<T extends IEntities>
     public void update(T typeOfEntity,long id)
     {
         ArrayList<String> columnNames = typeOfEntity.getColumnNames();
-        ArrayList<String> fieldsInStringForm = typeOfEntity.getAllExceptIdInStringFormat();
+        ArrayList<String> fieldsInStringForm = typeOfEntity.getAllNeededValuesExceptIdInStringFormat();
         String stringForUpdate ="UPDATE "+tableName+" SET ";
         for (int i = 0; i < fieldsInStringForm.size(); i++)
         {

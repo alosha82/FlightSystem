@@ -11,6 +11,8 @@ import java.util.*;
 
 public class AnonymousFacade extends FacadeBase
 {
+    /**Joins Users with User_Roles and filters the joined entity by username and password,
+     * then decides what facade to return to the caller dy the role that was acquainted through joining*/
     @SneakyThrows
     public AnonymousFacade login(String username,String password) throws Exception
     {

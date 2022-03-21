@@ -15,6 +15,7 @@ public class PostgresConnection
     public PostgresConnection() {
 
     }
+    /**Creates postgres connection*/
     @SneakyThrows
     public Connection getConnection(String dataBaseName,String password) {
         Class.forName("org.postgresql.Driver");
@@ -23,7 +24,7 @@ public class PostgresConnection
         System.out.println("Connection to postgres database named "+dataBaseName+" established.");
         return this.connection;
     }
-
+    /**Creates postgres statement*/
     public Statement getStatement() {
         try {
             statement=this.connection.createStatement();

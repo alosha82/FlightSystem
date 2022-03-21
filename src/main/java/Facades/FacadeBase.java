@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 public abstract class FacadeBase
 {
+    /**Runs a function created in the pg4admin(SQL)*/
     public  ArrayList<Flights> get_flights_by_parameters(int origin_country_id, int destination_country_id, Timestamp date)
     {
         GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights", new Flights());
@@ -15,12 +16,16 @@ public abstract class FacadeBase
         parameters.add(""+origin_country_id);
         parameters.add(""+destination_country_id);
         parameters.add("timestamp \'"+date+"\'");
-        return flightsDAO.runSQLFunction("get_flights_by_parameters",parameters,new Flights());
+        ArrayList<Flights> listOfFlights=flightsDAO.runSQLFunction("get_flights_by_parameters",parameters,new Flights());
+        flightsDAO.closeAllDAOConnections();
+        return listOfFlights;
     }
     public  ArrayList<AirlineCompanies> get_airline_by_parameters(int countryId)
     {
         GenericDAO<AirlineCompanies> airlineCompaniesDAO = new GenericDAO<>("AirlineCompanies", new AirlineCompanies());
-        return airlineCompaniesDAO.getByFieldTypeArr(""+countryId,"Country_Id");
+        ArrayList<AirlineCompanies> listOfAirlinesByCountry=airlineCompaniesDAO.getByFieldTypeArr(""+countryId,"Country_Id");
+        airlineCompaniesDAO.closeAllDAOConnections();
+        return listOfAirlinesByCountry
     }
 
     public ArrayList<Flights> getAllFlights()
@@ -75,6 +80,8 @@ public abstract class FacadeBase
         countriesDAO.closeAllDAOConnections();
         return country;
     }
+    /**Creates a new user and its role table,
+     * then adds them to the database*/
     public <T extends IEntities> void createNewUser (Users user, T entityOfRole)//(String username, String password, String email, int userRole)
     {
         GenericDAO<Users> usersDAO =new GenericDAO<>("Users", new Users());
@@ -83,18 +90,21 @@ public abstract class FacadeBase
             usersDAO.add(user);
             GenericDAO<Customers> customerDAO =new GenericDAO<>("Customers", new Customers());
             customerDAO.add((Customers) entityOfRole);
+            customerDAO.closeAllDAOConnections();
         }
         else if (entityOfRole instanceof Administrators)
         {
             usersDAO.add(user);
             GenericDAO<Administrators> administratorDAO =new GenericDAO<>("Administrators", new Administrators());
             administratorDAO.add((Administrators) entityOfRole);
+            usersDAO.closeAllDAOConnections();
         }
         else if (entityOfRole instanceof AirlineCompanies)
         {
             usersDAO.add(user);
             GenericDAO<AirlineCompanies> airlineCompaniesDAO =new GenericDAO<>("AirlineCompanies", new AirlineCompanies());
             airlineCompaniesDAO.add((AirlineCompanies) entityOfRole);
+            airlineCompaniesDAO.closeAllDAOConnections();
         }
         else
         {

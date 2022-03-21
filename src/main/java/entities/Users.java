@@ -72,7 +72,9 @@ public class Users implements IEntities
         this.columnNames=columnNames;
     }
 
-    public ArrayList<String> getAllExceptIdInStringFormat()
+    /**Returns list of values that were set in string format.
+     *columnNames initiated with ia Id column as a placeholder*/
+    public ArrayList<String> getAllNeededValuesExceptIdInStringFormat()
     {
         ArrayList<String> getterArray = new ArrayList<>();
         getterArray.add(getUserName());
@@ -86,10 +88,10 @@ public class Users implements IEntities
     @Override
     public String toString() {
         return "id=" + id +
-                ", userName='" + userName + '\'' +
-                ", password='" + password + '\'' +
-                ", email='" + email + '\'' +
-                ", userRole=" + userRole +"\n"
+                ", userName= " + userName +
+                ", password= " + password +
+                ", email= " + email +
+                ", userRole= " + userRole +"\n"
                 ;
     }
 }

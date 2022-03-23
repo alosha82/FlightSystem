@@ -1,5 +1,6 @@
 package entities;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 
 @Getter
 @Setter
+@EqualsAndHashCode
 public class UserRoles implements IEntities
 {
     private Integer id;
@@ -21,13 +23,22 @@ public class UserRoles implements IEntities
         columnNames.add("Id");
     }
 
+    public UserRoles(UserRoles userRole) {
+        columnNames.add("Id");
+        if(userRole.getId()!=null)
+            setId(userRole.getId());
+        if(userRole.getRoleName()!=null)
+            setRoleName(userRole.getRoleName().replace("\'",""));
+    }
+
     public void setId(int id) {
         this.id = id;
     }
 
     public void setRoleName(String roleName)
     {
-        this.roleName = roleName;
+        if(roleName != null)
+            this.roleName = "\'"+roleName+"\'";
         if(!columnNames.contains("Role_Name"))
             columnNames.add("Role_Name");
     }
@@ -37,13 +48,13 @@ public class UserRoles implements IEntities
     {
         ResultSetMetaData rsmd = result.getMetaData();
         ArrayList<String> columnNames = new ArrayList<>();
-        for (int i = 0; i < rsmd.getColumnCount(); i++)
+        for (int i = 1; i <=rsmd.getColumnCount(); i++)
         {
             columnNames.add(rsmd.getColumnName(i));
         }
         int i=0;
         setId(result.getInt(columnNames.get(i++)));
-        setRoleName("\'"+result.getString(columnNames.get(i++))+"\'");
+        setRoleName(result.getString(columnNames.get(i++)));
     }
 
     /**Returns list of values that were set in string format.

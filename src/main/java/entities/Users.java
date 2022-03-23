@@ -1,5 +1,6 @@
 package entities;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
@@ -8,6 +9,7 @@ import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 
 @Getter
+@EqualsAndHashCode
 public class Users implements IEntities
 {
     private Long id;
@@ -22,27 +24,45 @@ public class Users implements IEntities
         columnNames.add("Id");
     }
 
+    public Users(Users user)
+    {
+        columnNames.add("Id");
+        if(user.getId()!=null)
+            setId(user.getId());
+        if(user.getUserName()!=null)
+            setUserName(user.getUserName().replace("\'",""));
+        if(user.getPassword()!=null)
+            setPassword(user.getPassword().replace("\'",""));
+        if(user.getEmail()!=null)
+            setEmail(user.getEmail().replace("\'",""));
+        if(user.getUserRole()!=null)
+            setUserRole(user.getUserRole());
+    }
+
     public void setId(long id) {
         this.id = id;
     }
 
     public void setUserName(String userName)
     {
-        this.userName = userName;
-        if(!columnNames.contains("User_Name"))
-            columnNames.add("User_Name");
+        if(userName != null)
+            this.userName = "\'"+userName+"\'";
+        if(!columnNames.contains("Username"))
+            columnNames.add("Username");
     }
 
     public void setPassword(String password)
     {
-        this.password = password;
+        if(password != null)
+            this.password = "\'"+password+"\'";
         if(!columnNames.contains("Password"))
             columnNames.add("Password");
     }
 
     public void setEmail(String email)
     {
-        this.email = email;
+        if(email != null)
+            this.email = "\'"+email+"\'";
         if(!columnNames.contains("Email"))
             columnNames.add("Email");
     }
@@ -59,15 +79,15 @@ public class Users implements IEntities
     {
         ResultSetMetaData rsmd = result.getMetaData();
         ArrayList<String> columnNames = new ArrayList<>();
-        for (int i = 0; i < rsmd.getColumnCount(); i++)
+        for (int i = 1; i <=rsmd.getColumnCount(); i++)
         {
             columnNames.add(rsmd.getColumnName(i));
         }
         int i=0;
         setId(result.getInt(columnNames.get(i++)));
-        setUserName("\'"+result.getString(columnNames.get(i++))+"\'");
-        setPassword("\'"+result.getString(columnNames.get(i++))+"\'");
-        setEmail("\'"+result.getString(columnNames.get(i++))+"\'");
+        setUserName(result.getString(columnNames.get(i++)));
+        setPassword(result.getString(columnNames.get(i++)));
+        setEmail(result.getString(columnNames.get(i++)));
         setUserRole(result.getInt(columnNames.get(i++)));
         this.columnNames=columnNames;
     }

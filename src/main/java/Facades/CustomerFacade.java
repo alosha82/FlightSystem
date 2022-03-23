@@ -6,6 +6,7 @@ import entities.Flights;
 import entities.Tickets;
 import logintoken.LoginToken;
 import lombok.Getter;
+import org.apache.commons.math3.util.Pair;
 
 import java.util.*;
 
@@ -69,6 +70,23 @@ public class CustomerFacade extends AnonymousFacade
         }
         flightsDAO.closeAllDAOConnections();
         ticketsDAO.closeAllDAOConnections();
+    }
+
+    /**Implementation of this method uses joinMultipleByWithWhereClause.*/
+    public ArrayList<Flights>getFlightsByCustomer(Customers customer)
+    {
+        ArrayList<Flights> flights;
+        Map<String,Collection<String>> tablesToColumnsMap=new HashMap<>();
+        GenericDAO<Flights> flightDAO = new GenericDAO<>("Flights",new Flights());
+        tablesToColumnsMap.put("Flights", List.of("Id", "Airline_Company_Id","Origin_Country_Id","Destination_Country_Id"
+                ,"Departure_time","Landing_time","Remaining_Tickets"));
+        LinkedHashMap<Pair<String,String>,Pair<String,String>> foreignsToOrigins=new LinkedHashMap<>();
+        foreignsToOrigins.put(new Pair<>("Tickets", "Flight_Id"), new Pair<>("Flights", "Id"));
+        foreignsToOrigins.put(new Pair<>("Customers", "Id"),new Pair<>("Tickets", "Customer_Id"));
+        String whereClose = "WHERE \"Customers\".\"Id\" = "+ customer.getId();
+        flights =flightDAO.joinMultipleByWithWhereClause(tablesToColumnsMap,"Tickets",foreignsToOrigins,new Flights(),whereClose);
+        flightDAO.closeAllDAOConnections();
+        return flights;
     }
 
     /**Joins Tickets with Customers and filters the joined entity by Customers.Id*/

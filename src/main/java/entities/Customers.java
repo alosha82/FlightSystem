@@ -1,7 +1,7 @@
 package entities;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.SneakyThrows;
 
 import java.sql.ResultSet;
@@ -9,7 +9,7 @@ import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 
 @Getter
-@Setter
+@EqualsAndHashCode
 public class Customers implements IEntities
 {
     private Long id;
@@ -26,41 +26,64 @@ public class Customers implements IEntities
         columnNames.add("Id");
     }
 
+    public Customers(Customers customer) {
+        columnNames.add("Id");
+        if(customer.getId()!=null)
+            setId(customer.getId());
+        if(customer.getFirstName()!=null)
+            setFirstName(customer.getFirstName().replace("\'",""));
+        if(customer.getLastName()!=null)
+            setLastName(customer.getLastName().replace("\'",""));
+        if(customer.getAddress()!=null)
+            setAddress(customer.getAddress().replace("\'",""));
+        if(customer.getPhoneNumber()!=null)
+            setPhoneNumber(customer.getPhoneNumber().replace("\'",""));
+        if(customer.getCreditCardNumber()!=null)
+            setCreditCardNumber(customer.getCreditCardNumber().replace("\'",""));
+        if(customer.getUserId()!=null)
+            setUserId(customer.getUserId());
+    }
+
     public void setId(long id) {
         this.id = id;
     }
 
     public void setFirstName(String firstName)
     {
-        this.firstName = firstName;
+        if(firstName != null)
+            this.firstName = "\'"+firstName+"\'";
         if(!columnNames.contains("First_Name"))
             columnNames.add("First_Name");
     }
 
     public void setLastName(String lastName)
     {
-        LastName = lastName;
+        if(lastName != null)
+            LastName = "\'"+lastName+"\'";
         if(!columnNames.contains("Last_Name"))
             columnNames.add("Last_Name");
     }
 
     public void setAddress(String address)
     {
-        this.address = address;
+        if(address != null)
+            this.address = "\'"+address+"\'";
         if(!columnNames.contains("Address"))
             columnNames.add("Address");
     }
 
     public void setPhoneNumber(String phoneNumber)
     {
-        this.phoneNumber = phoneNumber;
+        if(phoneNumber != null)
+            this.phoneNumber = "\'"+phoneNumber+"\'";
         if(!columnNames.contains("Phone_No"))
             columnNames.add("Phone_No");
     }
 
     public void setCreditCardNumber(String creditCardNumber)
     {
-        this.creditCardNumber = creditCardNumber;
+        if(creditCardNumber != null)
+            this.creditCardNumber = "\'"+creditCardNumber+"\'";
         if(!columnNames.contains("Credit_Card_No"))
             columnNames.add("Credit_Card_No");
     }
@@ -77,17 +100,17 @@ public class Customers implements IEntities
     {
         ResultSetMetaData rsmd = result.getMetaData();
         ArrayList<String> columnNames = new ArrayList<>();
-        for (int i = 0; i < rsmd.getColumnCount(); i++)
+        for (int i = 1; i <=rsmd.getColumnCount(); i++)
         {
             columnNames.add(rsmd.getColumnName(i));
         }
         int i=0;
         setId(result.getInt(columnNames.get(i++)));
-        setFirstName("\'"+result.getString(columnNames.get(i++))+"\'");
-        setLastName("\'"+result.getString(columnNames.get(i++))+"\'");
-        setAddress("\'"+result.getString(columnNames.get(i++))+"\'");
-        setPhoneNumber("\'"+result.getString(columnNames.get(i++))+"\'");
-        setCreditCardNumber("\'"+result.getString(columnNames.get(i++))+"\'");
+        setFirstName(result.getString(columnNames.get(i++)));
+        setLastName(result.getString(columnNames.get(i++)));
+        setAddress(result.getString(columnNames.get(i++)));
+        setPhoneNumber(result.getString(columnNames.get(i++)));
+        setCreditCardNumber(result.getString(columnNames.get(i++)));
         setUserId(result.getLong(columnNames.get(i++)));
     }
 

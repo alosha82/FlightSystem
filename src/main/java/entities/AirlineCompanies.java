@@ -1,5 +1,6 @@
 package entities;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import lombok.SneakyThrows;
@@ -9,6 +10,7 @@ import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 
 @Getter
+@EqualsAndHashCode
 public class AirlineCompanies implements IEntities
 {
     private Long id;
@@ -22,13 +24,28 @@ public class AirlineCompanies implements IEntities
         columnNames.add("Id");
     }
 
+    public AirlineCompanies(AirlineCompanies airlineCompany)
+    {
+        columnNames.add("Id");
+        if(airlineCompany.getId()!=null)
+            setId(airlineCompany.getId());
+        if(airlineCompany.getName()!=null)
+            setName(airlineCompany.getName().replace("\'",""));
+        if(airlineCompany.getCountryId()!=null)
+            setCountryId(airlineCompany.getCountryId());
+        if(airlineCompany.getUserId()!=null)
+            setUserId(airlineCompany.getUserId());
+    }
+
     public void setId(long id)
     {
         this.id = id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setName(String name)
+    {
+        if(name != null)
+            this.name = "\'"+name+"\'";
         if (!columnNames.contains("Name"))
             columnNames.add("Name");
     }
@@ -51,13 +68,13 @@ public class AirlineCompanies implements IEntities
     {
         ResultSetMetaData rsmd = result.getMetaData();
         ArrayList<String> columnNames = new ArrayList<>();
-        for (int i = 0; i < rsmd.getColumnCount(); i++)
+        for (int i = 1; i <=rsmd.getColumnCount(); i++)
         {
             columnNames.add(rsmd.getColumnName(i));
         }
         int i=0;
         setId(result.getLong(columnNames.get(i++)));
-        setName("\'"+result.getString(columnNames.get(i++))+"\'");
+        setName(result.getString(columnNames.get(i++)));
         setCountryId(result.getInt(columnNames.get(i++)));
         setUserId(result.getLong(columnNames.get(i++)));
     }

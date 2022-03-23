@@ -1,5 +1,6 @@
 package entities;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 
 
 @Getter
+@EqualsAndHashCode
 public class Tickets implements IEntities
 {
     private Long id;
@@ -19,6 +21,16 @@ public class Tickets implements IEntities
     public Tickets()
     {
         columnNames.add("Id");
+    }
+
+    public Tickets(Tickets ticket) {
+        columnNames.add("Id");
+        if(ticket.getId()!=null)
+            setId(ticket.getId());
+        if(ticket.getFlightId()!=null)
+            setFlightId(ticket.getFlightId());
+        if(ticket.getCostumersId()!=null)
+            setCostumersId(ticket.getCostumersId());
     }
 
     public void setId(long id) {
@@ -44,7 +56,7 @@ public class Tickets implements IEntities
     {
         ResultSetMetaData rsmd = result.getMetaData();
         ArrayList<String> columnNames = new ArrayList<>();
-        for (int i = 0; i < rsmd.getColumnCount(); i++)
+        for (int i = 1; i <=rsmd.getColumnCount(); i++)
         {
             columnNames.add(rsmd.getColumnName(i));
         }

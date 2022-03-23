@@ -1,8 +1,10 @@
 import Facades.CustomerFacade;
 import dao.GenericDAO;
 import entities.Flights;
+import entities.UserRoles;
 import entities.Users;
 import logintoken.LoginToken;
+import lombok.val;
 import org.apache.commons.math3.util.Pair;
 
 import java.util.*;
@@ -14,6 +16,18 @@ public class Main
         String x ="hello";
         String y = x.substring(0,x.length()-1);
         System.out.println(y);
+//        GenericDAO<UserRoles> userRolesDAO=new GenericDAO<>("User_Roles",new UserRoles());
+//        val userRolesForTest = new UserRoles();
+//        userRolesForTest.setId(1);
+//        userRolesForTest.setRoleName("Administrator");
+//        userRolesDAO.add(userRolesForTest);
+//        userRolesForTest.setId(2);
+//        userRolesForTest.setRoleName("Airline_Company");
+//        userRolesDAO.add(userRolesForTest);
+//        userRolesForTest.setId(3);
+//        userRolesForTest.setRoleName("Customer");
+//        userRolesDAO.add(userRolesForTest);
+
 //        GenericDAO<Flights> t = new GenericDAO<>("Flights",new Flights());
 //        Map<String,Collection<String>> tablesToColumnsMap=new HashMap<>();
 //        tablesToColumnsMap.put("Customers", List.of("First_Name", "Last_Name"));
@@ -34,9 +48,6 @@ public class Main
 
 //        CustomerFacade cf = new CustomerFacade(new LoginToken());
 //        cf.createNewUser(new Users(),new Flights());
-
-
-
 
     }
 }

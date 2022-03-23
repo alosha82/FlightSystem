@@ -1,5 +1,6 @@
 package entities;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
@@ -8,6 +9,7 @@ import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 
 @Getter
+@EqualsAndHashCode
 public class Administrators implements IEntities
 {
     private Integer id;
@@ -21,19 +23,35 @@ public class Administrators implements IEntities
         columnNames.add("Id");
     }
 
+    public Administrators(Administrators administrators) {
+        columnNames.add("Id");
+        if(administrators.getId()!=null)
+            setId(administrators.getId());
+        if(administrators.getFirstName()!=null)
+            setFirstName(administrators.getFirstName().replace("\'",""));
+        if(administrators.getLastName()!=null)
+            setLastName(administrators.getLastName().replace("\'",""));
+        if(administrators.getUserId()!=null)
+            setUserId(administrators.getUserId());
+    }
+
     public void setId(int id)
     {
         this.id = id;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public void setFirstName(String firstName)
+    {
+        if(firstName != null)
+            this.firstName = "\'"+firstName+"\'";
         if (!columnNames.contains("First_Name"))
             columnNames.add("First_Name");
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setLastName(String lastName)
+    {
+        if(lastName != null)
+            this.lastName = "\'"+lastName+"\'";
         if (!columnNames.contains("Last_Name"))
             columnNames.add("Last_Name");
     }
@@ -49,14 +67,14 @@ public class Administrators implements IEntities
     {
         ResultSetMetaData rsmd = result.getMetaData();
         ArrayList<String> columnNames = new ArrayList<>();
-        for (int i = 0; i < rsmd.getColumnCount(); i++)
+        for (int i = 1; i <=rsmd.getColumnCount(); i++)
         {
             columnNames.add(rsmd.getColumnName(i));
         }
         int i=0;
         setId(result.getInt(columnNames.get(i++)));
-        setFirstName("\'"+result.getString(columnNames.get(i++))+"\'");
-        setLastName("\'"+result.getString(columnNames.get(i++))+"\'");
+        setFirstName(result.getString(columnNames.get(i++)));
+        setLastName(result.getString(columnNames.get(i++)));
         setUserId(result.getLong(columnNames.get(i++)));
     }
     /**Returns list of values that were set in string format.

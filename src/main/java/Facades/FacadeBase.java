@@ -4,6 +4,8 @@ import dao.GenericDAO;
 import entities.*;
 
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public abstract class FacadeBase
@@ -64,6 +66,41 @@ public abstract class FacadeBase
         return airlineCompany;
     }
 
+    public  ArrayList<Flights>getFlightsByOriginCountryId(int origin_country_id)
+    {
+        GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights", new Flights());
+        ArrayList<Flights> listOfFlights=flightsDAO.getByFieldTypeArr(""+origin_country_id,"Country_Id");
+        flightsDAO.closeAllDAOConnections();
+        return listOfFlights;
+    }
+
+    public  ArrayList<Flights>getFlightsByDestinationCountryId(int destination_country_id)
+    {
+        GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights", new Flights());
+        ArrayList<Flights> listOfFlights=flightsDAO.getByFieldTypeArr(""+destination_country_id,"Country_Id");
+        flightsDAO.closeAllDAOConnections();
+        return listOfFlights;
+    }
+
+    public  ArrayList<Flights> getFlightsByDepartureDate(Timestamp date)
+    {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights", new Flights());
+        ArrayList<Flights> listOfFlightsByDepartureDate=flightsDAO.getByFieldTypeArr
+                (""+dateFormat.format(date),"DATE(\"Departure_Date\")");
+        flightsDAO.closeAllDAOConnections();
+        return listOfFlightsByDepartureDate;
+    }
+
+    public  ArrayList<Flights> getFlightsByLandingDate(Timestamp date)
+    {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights", new Flights());
+        ArrayList<Flights> listOfFlightsByDepartureDate=flightsDAO.getByFieldTypeArr
+                (""+dateFormat.format(date),"DATE(\"Landing_Date\")");
+        flightsDAO.closeAllDAOConnections();
+        return listOfFlightsByDepartureDate;
+    }
     public ArrayList<Countries> getAllCountries()
     {
         ArrayList<Countries> countries;

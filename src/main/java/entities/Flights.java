@@ -1,5 +1,6 @@
 package entities;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
@@ -9,15 +10,14 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 
 @Getter
+@EqualsAndHashCode
 public class Flights implements IEntities
 {
     private Long id;
     private Long AirlineCompanyId;
     private Integer originCountryId;
     private Integer destinationCountryId;
-    //Todo Subject to change
     private Timestamp departureTime;
-    //Todo Subject to change
     private Timestamp landingTime;
     private Integer remainingTickets;
     private ArrayList<String> columnNames=new ArrayList<>();
@@ -25,6 +25,24 @@ public class Flights implements IEntities
     public Flights()
     {
         columnNames.add("Id");
+    }
+
+    public Flights(Flights flight) {
+        columnNames.add("Id");
+        if(flight.getId()!=null)
+            setId(flight.getId());
+        if(flight.getAirlineCompanyId()!=null)
+            setAirlineCompanyId(flight.getAirlineCompanyId());
+        if(flight.getOriginCountryId()!=null)
+            setOriginCountryId(flight.getOriginCountryId());
+        if(flight.getDepartureTime()!=null)
+            setDestinationCountryId(flight.getDestinationCountryId());
+        if(flight.getDepartureTime()!=null)
+            setDepartureTime(flight.getDepartureTime());
+        if(flight.getLandingTime()!=null)
+            setLandingTime(flight.getLandingTime());
+        if(flight.getRemainingTickets()!=null)
+            setRemainingTickets(flight.getRemainingTickets());
     }
 
     public void setId(Long id) {
@@ -77,7 +95,7 @@ public class Flights implements IEntities
     {
         ResultSetMetaData rsmd = result.getMetaData();
         ArrayList<String> columnNames = new ArrayList<>();
-        for (int i = 0; i < rsmd.getColumnCount(); i++)
+        for (int i = 1; i <=rsmd.getColumnCount(); i++)
         {
             columnNames.add(rsmd.getColumnName(i));
         }
@@ -103,9 +121,9 @@ public class Flights implements IEntities
         if(columnNames.contains("Destination_Country_Id"))
             getterArray.add(""+getDestinationCountryId());
         if(columnNames.contains("Departure_Time"))
-            getterArray.add(""+getDepartureTime());
+            getterArray.add("\'"+getDepartureTime()+"\'");
         if(columnNames.contains("Landing_Time"))
-            getterArray.add(""+getLandingTime());
+            getterArray.add("\'"+getLandingTime()+"\'");
         if(columnNames.contains("Remaining_Tickets"))
             getterArray.add(""+getRemainingTickets());
         return getterArray;

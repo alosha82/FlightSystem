@@ -1,5 +1,7 @@
 package dao;
 
+import com.google.gson.Gson;
+import com.rits.cloning.Cloner;
 import entities.*;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -9,9 +11,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 
 import java.sql.Statement;
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,14 +35,7 @@ public class GenericDAO<T extends IEntities>
      * Returns: Arraylist of the DAO's type(entity)  */
     public ArrayList<T> getAll()
     {
-        ResultSet result= stm.executeQuery("select * from "+tableName);
-        while(result.next())
-        {
-            entityType.setAll(result);
-            arrayOfEntityType.add(entityType);
-        }
-        result.close();
-        return arrayOfEntityType;
+        return  executeQueryAndSaveInTheProperEntity("select * from "+quote(tableName),entityType);
     }
     @SneakyThrows
     /** Executes an SQL function.
@@ -56,7 +48,7 @@ public class GenericDAO<T extends IEntities>
             stringToExecute=stringToExecute+properlyFormattedParameters.get(i)+",";
         }
         stringToExecute = stringToExecute.substring(0,stringToExecute.length()-1);
-        return stm.executeQuery(stringToExecute);
+        return stm.executeQuery(stringToExecute+")");
     }
 
     @SneakyThrows
@@ -71,7 +63,7 @@ public class GenericDAO<T extends IEntities>
             stringToExecute=stringToExecute+properlyFormattedParameters.get(i)+",";
         }
         stringToExecute = stringToExecute.substring(0,stringToExecute.length()-1);
-        return executeQueryAndSaveInTheProperEntity(stringToExecute,typeOfEntity);
+        return executeQueryAndSaveInTheProperEntity(stringToExecute+")",typeOfEntity);
     }
 
     @SneakyThrows
@@ -79,7 +71,7 @@ public class GenericDAO<T extends IEntities>
      * Returns:  DAO's type(entity)  */
     public T getById(long id)
     {
-        return  getByFieldType("Id",""+id);
+        return  getByFieldType(""+id,"Id");
     }
 
     @SneakyThrows
@@ -87,55 +79,20 @@ public class GenericDAO<T extends IEntities>
      * Returns:  DAO's type(entity)  */
     public T getByFieldType(String formattedByPostgresSQLStandardsParameter,String fieldName)
     {
-        ResultSet result= stm.executeQuery("select * from "+quote(tableName)+" WHERE "+fieldName+"="+formattedByPostgresSQLStandardsParameter);
+        ResultSet result= stm.executeQuery("select * from "+quote(tableName)+" WHERE "+quote(fieldName)+"="+formattedByPostgresSQLStandardsParameter);
         //needed because it starts on wrong column
         result.next();
         entityType.setAll(result);
         result.close();
         return entityType;
     }
-   /**Those functions implemented by getByFieldTypeArr method trough GenericDOA<Flights> as a proof of concept I will implement them here.
-    They should be implemented in business logic*/
-//    public  ArrayList<AirlineCompanies> getAirlinesByCountry(int country_id) implemented in FacadeBase (get_airline_by_parameters) uses getByFieldTypeArr;
-//    public  ArrayList<Flights>getFlightsByOriginCountryId(int origin_country_id)
-//    {
-//        GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights", new Flights());
-//        ArrayList<Flights> listOfFlights=flightsDAO.getByFieldTypeArr(""+origin_country_id,"Country_Id");
-//        flightsDAO.closeAllDAOConnections();
-//        return listOfFlights;
-//    }
-//    public  ArrayList<Flights>getFlightsByDestinationCountryId(int destination_country_id)
-//    {
-//        GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights", new Flights());
-//        ArrayList<Flights> listOfFlights=flightsDAO.getByFieldTypeArr(""+destination_country_id,"Country_Id");
-//        flightsDAO.closeAllDAOConnections();
-//        return listOfFlights;
-//    }
-//    public  ArrayList<Flights> getFlightsByDepartureDate(Timestamp date)
-//    {
-//        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-//        GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights", new Flights());
-//        ArrayList<Flights> listOfFlightsByDepartureDate=flightsDAO.getByFieldTypeArr
-//                (""+dateFormat.format(date),"DATE(\"Departure_Date\")");
-//        flightsDAO.closeAllDAOConnections();
-//        return listOfFlightsByDepartureDate;
-//    }
-//
-//    public  ArrayList<Flights> getFlightsByLandingDate(Timestamp date)
-//    {
-//        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-//        GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights", new Flights());
-//        ArrayList<Flights> listOfFlightsByDepartureDate=flightsDAO.getByFieldTypeArr
-//                (""+dateFormat.format(date),"DATE(\"Landing_Date\")");
-//        flightsDAO.closeAllDAOConnections();
-//        return listOfFlightsByDepartureDate;
-//    }
+
     @SneakyThrows
     /** Gets every line from the table matching the parameter.
      * Returns: Arraylist of the DAO's type(entity)  */
-    public ArrayList<T> getByFieldTypeArr(String formattedByPostgresSQLStandardsParameter,String formattedFieldName)
+    public ArrayList<T> getByFieldTypeArr(String formattedByPostgresSQLStandardsParameter,String fieldName)
     {
-        String stringToExecute ="select * from "+quote(tableName)+" WHERE "+formattedFieldName+"="+formattedByPostgresSQLStandardsParameter;
+        String stringToExecute ="select * from "+quote(tableName)+" WHERE "+quote(fieldName)+"="+formattedByPostgresSQLStandardsParameter;
         // might be a problem because the entityType might already have values.(might be problematic if the table has null fields. not sure)
         return executeQueryAndSaveInTheProperEntity(stringToExecute,entityType);
     }
@@ -143,7 +100,7 @@ public class GenericDAO<T extends IEntities>
      * Will fail if the entity in the table has somebody pointing to it  */
     public void remove(long id) throws Exception
     {
-        stm.executeUpdate("DELETE from "+quote(tableName)+" WHERE id="+id);
+        stm.executeUpdate("DELETE from "+quote(tableName)+" WHERE "+quote("Id")+"="+id);
         System.out.println("done");
     }
     @SneakyThrows
@@ -157,7 +114,7 @@ public class GenericDAO<T extends IEntities>
         String stringForExecution = "INSERT INTO "+quote(tableName)+" (";
         for (int i = 1; i < columnNames.size(); i++)
         {
-            stringForExecution=stringForExecution+columnNames.get(i)+",";
+            stringForExecution=stringForExecution+quote(columnNames.get(i))+",";
         }
         stringForExecution = stringForExecution.substring(0,stringForExecution.length()-1);
         stringForExecution = stringForExecution+") VALUES (";
@@ -178,10 +135,11 @@ public class GenericDAO<T extends IEntities>
         String stringForUpdate ="UPDATE "+quote(tableName)+" SET ";
         for (int i = 0; i < fieldsInStringForm.size(); i++)
         {
-            stringForUpdate=stringForUpdate + columnNames.get(i+1)+"="+fieldsInStringForm.get(i)+",";
+            stringForUpdate=stringForUpdate + quote(columnNames.get(i+1))+"="+fieldsInStringForm.get(i)+",";
         }
         stringForUpdate = stringForUpdate.substring(0,stringForUpdate.length()-1);
-        stm.executeUpdate(stringForUpdate+" WHERE id="+id);
+        System.out.println(stringForUpdate);
+        stm.executeUpdate(stringForUpdate+" WHERE "+quote("Id")+"="+id);
     }
 
     /** Sample to the output query SELECT "Customers"."First_Name","Customers"."Last_Name"
@@ -225,7 +183,7 @@ public class GenericDAO<T extends IEntities>
                 })
                 .collect(Collectors.joining(" "));
         String stringToExecute = String.join(" ", selectContents, fromContents, joinContents);
-        return stringToExecute+whereClause;
+        return stringToExecute+" "+whereClause;
     }
     /** Adds quotes */
     private String quote(String unquoted) {return "\""+unquoted+"\"";}
@@ -236,12 +194,14 @@ public class GenericDAO<T extends IEntities>
     /** Executes a query and saves the result in an array list of the received entity type. Note: the type may not be the same as the DAO's*/
     private <V extends IEntities> ArrayList<V> executeQueryAndSaveInTheProperEntity(String query,V typeOfEntity)
     {
+        Cloner cloner = new Cloner();
         ArrayList<V> ArrayListOfTypeOfEntity=new ArrayList<>();
         ResultSet result= stm.executeQuery(query);
         while(result.next())
         {
             typeOfEntity.setAll(result);
-            ArrayListOfTypeOfEntity.add(typeOfEntity);
+            V clone = cloner.deepClone(typeOfEntity);
+            ArrayListOfTypeOfEntity.add(clone);
         }
         result.close();
         return ArrayListOfTypeOfEntity;
@@ -355,24 +315,7 @@ public class GenericDAO<T extends IEntities>
         return joinMultipleByWithWhereClauseGetResultSet(tablesToColumnsTODisplayMap,from,foreignFieldToOriginalField,"");
     }
 
-     /**Implementation of this method uses joinMultipleByWithWhereClause.
-      * The greyed out function bellow should be implemented in the business logic if needed.
-      * Wrote it here because it was part of the assignment*/
-//    public ArrayList<Flights>getFlightsByCustomer(Customers customer)
-//    {
-//        ArrayList<Flights> flights;
-//        Map<String,Collection<String>> tablesToColumnsMap=new HashMap<>();
-//        GenericDAO<Flights> flightDAO = new GenericDAO<>("Flights",new Flights());
-//        tablesToColumnsMap.put("Flights", List.of("Id", "Airline_Company_Id","Origin_Country_Id","Destination_Country_Id"
-//                ,"Departure_time","Landing_time","Remaining_Tickets"));
-//        LinkedHashMap<Pair<String,String>,Pair<String,String>> foreignsToOrigins=new LinkedHashMap<>();
-//        foreignsToOrigins.put(new Pair<>("Tickets", "Flight_Id"), new Pair<>("Flights", "Id"));
-//        foreignsToOrigins.put(new Pair<>("Tickets", "Customer_Id"), new Pair<>("Customers", "Id"));
-//        String whereClose = "WHERE \"Customers\".\"Id\" = "+ customer.getId();
-//        flights =flightDAO.joinMultipleByWithWhereClause(tablesToColumnsMap,"Tickets",foreignsToOrigins,new Flights(),whereClose);
-//        flightDAO.closeAllDAOConnections();
-//        return flights;
-//    }
+
     /**function joinMultipleBy, and its brothers in name, joins the multiple tables(no connection to this DAO's table name).
      * Returns: An array list of the received entity type. Note: the type may not be the same as the DAO's
      * Parameters:

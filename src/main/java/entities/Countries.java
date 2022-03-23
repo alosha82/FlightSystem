@@ -37,7 +37,10 @@ public class Countries implements IEntities
     public void setName(String name)
     {
         if(name != null)
+        {
+            name=name.replace("\'","");
             this.name = "\'"+name+"\'";
+        }
         if (!columnNames.contains("Name"))
             columnNames.add("Name");
     }

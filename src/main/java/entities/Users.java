@@ -30,11 +30,11 @@ public class Users implements IEntities
         if(user.getId()!=null)
             setId(user.getId());
         if(user.getUserName()!=null)
-            setUserName(user.getUserName().replace("\'",""));
+            setUserName(user.getUserName());
         if(user.getPassword()!=null)
-            setPassword(user.getPassword().replace("\'",""));
+            setPassword(user.getPassword());
         if(user.getEmail()!=null)
-            setEmail(user.getEmail().replace("\'",""));
+            setEmail(user.getEmail());
         if(user.getUserRole()!=null)
             setUserRole(user.getUserRole());
     }
@@ -46,7 +46,10 @@ public class Users implements IEntities
     public void setUserName(String userName)
     {
         if(userName != null)
+        {
+            userName=userName.replace("\'","");
             this.userName = "\'"+userName+"\'";
+        }
         if(!columnNames.contains("Username"))
             columnNames.add("Username");
     }
@@ -54,7 +57,10 @@ public class Users implements IEntities
     public void setPassword(String password)
     {
         if(password != null)
+        {
+            password=password.replace("\'","");
             this.password = "\'"+password+"\'";
+        }
         if(!columnNames.contains("Password"))
             columnNames.add("Password");
     }
@@ -62,7 +68,10 @@ public class Users implements IEntities
     public void setEmail(String email)
     {
         if(email != null)
+        {
+            email=email.replace("\'","");
             this.email = "\'"+email+"\'";
+        }
         if(!columnNames.contains("Email"))
             columnNames.add("Email");
     }

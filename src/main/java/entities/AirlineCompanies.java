@@ -30,7 +30,7 @@ public class AirlineCompanies implements IEntities
         if(airlineCompany.getId()!=null)
             setId(airlineCompany.getId());
         if(airlineCompany.getName()!=null)
-            setName(airlineCompany.getName().replace("\'",""));
+            setName(airlineCompany.getName());
         if(airlineCompany.getCountryId()!=null)
             setCountryId(airlineCompany.getCountryId());
         if(airlineCompany.getUserId()!=null)
@@ -45,7 +45,10 @@ public class AirlineCompanies implements IEntities
     public void setName(String name)
     {
         if(name != null)
+        {
+            name=name.replace("\'","");
             this.name = "\'"+name+"\'";
+        }
         if (!columnNames.contains("Name"))
             columnNames.add("Name");
     }

@@ -28,7 +28,7 @@ public class UserRoles implements IEntities
         if(userRole.getId()!=null)
             setId(userRole.getId());
         if(userRole.getRoleName()!=null)
-            setRoleName(userRole.getRoleName().replace("\'",""));
+            setRoleName(userRole.getRoleName());
     }
 
     public void setId(int id) {
@@ -38,7 +38,10 @@ public class UserRoles implements IEntities
     public void setRoleName(String roleName)
     {
         if(roleName != null)
+        {
+            roleName=roleName.replace("\'","");
             this.roleName = "\'"+roleName+"\'";
+        }
         if(!columnNames.contains("Role_Name"))
             columnNames.add("Role_Name");
     }

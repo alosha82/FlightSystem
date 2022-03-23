@@ -31,15 +31,15 @@ public class Customers implements IEntities
         if(customer.getId()!=null)
             setId(customer.getId());
         if(customer.getFirstName()!=null)
-            setFirstName(customer.getFirstName().replace("\'",""));
+            setFirstName(customer.getFirstName());
         if(customer.getLastName()!=null)
-            setLastName(customer.getLastName().replace("\'",""));
+            setLastName(customer.getLastName());
         if(customer.getAddress()!=null)
-            setAddress(customer.getAddress().replace("\'",""));
+            setAddress(customer.getAddress());
         if(customer.getPhoneNumber()!=null)
-            setPhoneNumber(customer.getPhoneNumber().replace("\'",""));
+            setPhoneNumber(customer.getPhoneNumber());
         if(customer.getCreditCardNumber()!=null)
-            setCreditCardNumber(customer.getCreditCardNumber().replace("\'",""));
+            setCreditCardNumber(customer.getCreditCardNumber());
         if(customer.getUserId()!=null)
             setUserId(customer.getUserId());
     }
@@ -51,7 +51,10 @@ public class Customers implements IEntities
     public void setFirstName(String firstName)
     {
         if(firstName != null)
+        {
+            firstName=firstName.replace("\'","");
             this.firstName = "\'"+firstName+"\'";
+        }
         if(!columnNames.contains("First_Name"))
             columnNames.add("First_Name");
     }
@@ -59,7 +62,10 @@ public class Customers implements IEntities
     public void setLastName(String lastName)
     {
         if(lastName != null)
+        {
+            lastName=lastName.replace("\'","");
             LastName = "\'"+lastName+"\'";
+        }
         if(!columnNames.contains("Last_Name"))
             columnNames.add("Last_Name");
     }
@@ -67,7 +73,10 @@ public class Customers implements IEntities
     public void setAddress(String address)
     {
         if(address != null)
+        {
+            address=address.replace("\'","");
             this.address = "\'"+address+"\'";
+        }
         if(!columnNames.contains("Address"))
             columnNames.add("Address");
     }
@@ -75,7 +84,10 @@ public class Customers implements IEntities
     public void setPhoneNumber(String phoneNumber)
     {
         if(phoneNumber != null)
+        {
+            phoneNumber=phoneNumber.replace("\'","");
             this.phoneNumber = "\'"+phoneNumber+"\'";
+        }
         if(!columnNames.contains("Phone_No"))
             columnNames.add("Phone_No");
     }
@@ -83,7 +95,10 @@ public class Customers implements IEntities
     public void setCreditCardNumber(String creditCardNumber)
     {
         if(creditCardNumber != null)
+        {
+            creditCardNumber=creditCardNumber.replace("\'","");
             this.creditCardNumber = "\'"+creditCardNumber+"\'";
+        }
         if(!columnNames.contains("Credit_Card_No"))
             columnNames.add("Credit_Card_No");
     }

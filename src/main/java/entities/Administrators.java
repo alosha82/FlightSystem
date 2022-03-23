@@ -28,7 +28,7 @@ public class Administrators implements IEntities
         if(administrators.getId()!=null)
             setId(administrators.getId());
         if(administrators.getFirstName()!=null)
-            setFirstName(administrators.getFirstName().replace("\'",""));
+            setFirstName(administrators.getFirstName());
         if(administrators.getLastName()!=null)
             setLastName(administrators.getLastName().replace("\'",""));
         if(administrators.getUserId()!=null)
@@ -43,7 +43,10 @@ public class Administrators implements IEntities
     public void setFirstName(String firstName)
     {
         if(firstName != null)
-            this.firstName = "\'"+firstName+"\'";
+        {
+            firstName = firstName.replace("\'", "");
+            this.firstName = "\'" + firstName + "\'";
+        }
         if (!columnNames.contains("First_Name"))
             columnNames.add("First_Name");
     }
@@ -51,7 +54,10 @@ public class Administrators implements IEntities
     public void setLastName(String lastName)
     {
         if(lastName != null)
-            this.lastName = "\'"+lastName+"\'";
+        {
+            lastName=lastName.replace("\'","");
+            this.lastName = "\'" + lastName + "\'";
+        }
         if (!columnNames.contains("Last_Name"))
             columnNames.add("Last_Name");
     }

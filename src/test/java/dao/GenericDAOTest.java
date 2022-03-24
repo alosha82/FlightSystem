@@ -102,7 +102,7 @@ class GenericDAOTest {
     {
         UserRoles userRoles;
         GenericDAO<UserRoles> userRolesDAO=new GenericDAO<>("User_Roles",new UserRoles());
-        userRolesDAO.remove(10);
+        //userRolesDAO.remove(10);
     }
 
     @org.junit.jupiter.api.Test
@@ -150,19 +150,54 @@ class GenericDAOTest {
     @org.junit.jupiter.api.Test
     void joinTwoBy()
     {
+        ArrayList<Flights> flights;
+        Map<String, Collection<String>> tablesToColumnsMap=new HashMap<>();
+        tablesToColumnsMap.put("Customers", List.of("Id", "Airline_Company_Id",
+                "Origin_Country_Id","Destination_Country_Id",
+                "Departure_Time","Landing_Time","Remaining_Tickets"));
+        GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights",new Flights());
+        flights=flightsDAO.joinTwoBy(tablesToColumnsMap,"Origin_Country_Id","Countries","Id",new Flights());
 
     }
 
     @org.junit.jupiter.api.Test
-    void joinTwoByWithWhereClause() {
+    void joinTwoByWithWhereClause()
+    {
+        ArrayList<Flights> flights;
+        Map<String, Collection<String>> tablesToColumnsMap=new HashMap<>();
+        tablesToColumnsMap.put("Customers", List.of("Id", "Airline_Company_Id",
+                "Origin_Country_Id","Destination_Country_Id",
+                "Departure_Time","Landing_Time","Remaining_Tickets"));
+        GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights",new Flights());
+        flights=flightsDAO.joinTwoByWithWhereClause(tablesToColumnsMap,"Origin_Country_Id",
+                "Countries","Id",new Flights(),"WHERE \"Countries\".\"Id\"="+3);
     }
 
     @org.junit.jupiter.api.Test
-    void joinMultipleBy() {
+    void joinMultipleBy()
+    {
+        ArrayList<Flights> flights;
+        GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights",new Flights());
+        Map<String, Collection<String>> tablesToColumnsMap=new HashMap<>();
+        tablesToColumnsMap.put("Customers", List.of("First_Name", "Last_Name"));
+        LinkedHashMap<Pair<String,String>,Pair<String,String>> foreignsToOrigins=new LinkedHashMap<>();
+        foreignsToOrigins.put(new Pair<>("Tickets", "Flight_Id"), new Pair<>("Flights", "Id"));
+        foreignsToOrigins.put(new Pair<>("Customers", "Id"),new Pair<>("Tickets", "Customer_Id"));
+        flights=flightsDAO.joinMultipleBy(tablesToColumnsMap,"Flights",foreignsToOrigins,new Flights());
     }
 
     @org.junit.jupiter.api.Test
-    void joinMultipleByWithWhereClause() {
+    void joinMultipleByWithWhereClause()
+    {
+        ArrayList<Flights> flights;
+        GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights",new Flights());
+        Map<String, Collection<String>> tablesToColumnsMap=new HashMap<>();
+        tablesToColumnsMap.put("Customers", List.of("First_Name", "Last_Name"));
+        LinkedHashMap<Pair<String,String>,Pair<String,String>> foreignsToOrigins=new LinkedHashMap<>();
+        foreignsToOrigins.put(new Pair<>("Tickets", "Flight_Id"), new Pair<>("Flights", "Id"));
+        foreignsToOrigins.put(new Pair<>("Customers", "Id"),new Pair<>("Tickets", "Customer_Id"));
+        flights=flightsDAO.joinMultipleByWithWhereClause(tablesToColumnsMap,"Flights",
+                foreignsToOrigins,new Flights(),"WHERE \"Customers\".\"Id\"="+3);
     }
 
 

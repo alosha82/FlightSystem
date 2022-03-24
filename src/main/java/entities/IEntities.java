@@ -8,4 +8,5 @@ public interface IEntities
     public void setAll(ResultSet result);
     public ArrayList<String> getAllNeededValuesExceptIdInStringFormat();
     public ArrayList<String> getColumnNames();
+    public Long getId();
 }

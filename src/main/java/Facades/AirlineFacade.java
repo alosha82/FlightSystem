@@ -114,12 +114,12 @@ public class AirlineFacade extends AnonymousFacade
     {
         if (token.getId()!=flight.getAirlineCompanyId())
             throw new Exception("You can not remove flights of another airline company");
-        GenericDAO<Flights> ticketsDAO = new GenericDAO<>("Flights",new Flights());
+        GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights",new Flights());
         if (flight.getId()==null)
             System.out.println("Id must be provided inside the flight. No removal was made in the DataBase");
         else
-            ticketsDAO.remove(flight.getId());
-        ticketsDAO.closeAllDAOConnections();
+            flightsDAO.remove(flight);
+        flightsDAO.closeAllDAOConnections();
     }
 
     /**Joins flights with airlineCompanies and filters the joined entity by Airline_Company_Id*/

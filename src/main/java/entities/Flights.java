@@ -14,7 +14,7 @@ import java.util.ArrayList;
 public class Flights implements IEntities
 {
     private Long id;
-    private Long AirlineCompanyId;
+    private Long airlineCompanyId;
     private Integer originCountryId;
     private Integer destinationCountryId;
     private Timestamp departureTime;
@@ -50,7 +50,7 @@ public class Flights implements IEntities
     }
 
     public void setAirlineCompanyId(Long airlineCompanyId) {
-        AirlineCompanyId = airlineCompanyId;
+        this.airlineCompanyId = airlineCompanyId;
         if(!columnNames.contains("Airline_Company_Id"))
             columnNames.add("Airline_Company_Id");
     }
@@ -132,7 +132,7 @@ public class Flights implements IEntities
     @Override
     public String toString() {
         return "id=" + id +
-                ", AirlineCompanyId=" + AirlineCompanyId +
+                ", AirlineCompanyId=" + airlineCompanyId +
                 ", originCountryId=" + originCountryId +
                 ", destinationCountryId=" + destinationCountryId +
                 ", departureDTime='" + departureTime + '\'' +

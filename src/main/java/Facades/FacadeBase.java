@@ -126,13 +126,16 @@ public abstract class FacadeBase
         {
             usersDAO.add(user);
             GenericDAO<Customers> customerDAO =new GenericDAO<>("Customers", new Customers());
+            ((Customers) entityOfRole).setUserId(user.getId());
             customerDAO.add((Customers) entityOfRole);
             customerDAO.closeAllDAOConnections();
         }
         else if (entityOfRole instanceof Administrators)
         {
+
             usersDAO.add(user);
             GenericDAO<Administrators> administratorDAO =new GenericDAO<>("Administrators", new Administrators());
+            ((Administrators) entityOfRole).setUserId(user.getId());
             administratorDAO.add((Administrators) entityOfRole);
             usersDAO.closeAllDAOConnections();
         }
@@ -140,6 +143,7 @@ public abstract class FacadeBase
         {
             usersDAO.add(user);
             GenericDAO<AirlineCompanies> airlineCompaniesDAO =new GenericDAO<>("AirlineCompanies", new AirlineCompanies());
+            ((AirlineCompanies) entityOfRole).setUserId(user.getId());
             airlineCompaniesDAO.add((AirlineCompanies) entityOfRole);
             airlineCompaniesDAO.closeAllDAOConnections();
         }

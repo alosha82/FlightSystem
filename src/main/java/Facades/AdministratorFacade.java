@@ -4,6 +4,7 @@ import dao.GenericDAO;
 import entities.Administrators;
 import entities.AirlineCompanies;
 import entities.Customers;
+import entities.Users;
 import logintoken.LoginToken;
 import lombok.Getter;
 import lombok.Setter;
@@ -103,9 +104,14 @@ public class AdministratorFacade extends AnonymousFacade
         if (customer.getId()==null)
             System.out.println("Id must be provided inside the ticket. No removal was made in the DataBase");
         else {
-            try {
-                customersDAO.remove(customer.getId());
-            } catch (Exception e) {
+            try
+            {
+                customersDAO.remove(customer);
+                GenericDAO<Users> usersDAO = new GenericDAO<>("Users",new Users());
+                usersDAO.remove(usersDAO.getById(customer.getUserId()));
+            }
+            catch (Exception e)
+            {
                 System.out.println("Remove all other connections first" );
             }
         }
@@ -121,7 +127,9 @@ public class AdministratorFacade extends AnonymousFacade
             System.out.println("Id must be provided inside the ticket. No removal was made in the DataBase");
         else {
             try {
-                airlineCompaniesDAO.remove(airlineCompany.getId());
+                airlineCompaniesDAO.remove(airlineCompany);
+                GenericDAO<Users> usersDAO = new GenericDAO<>("Users",new Users());
+                usersDAO.remove(usersDAO.getById(airlineCompany.getUserId()));
             } catch (Exception e) {
                 System.out.println("Remove all other connections first" );
             }
@@ -138,9 +146,11 @@ public class AdministratorFacade extends AnonymousFacade
             System.out.println("Id must be provided inside the ticket. No removal was made in the DataBase");
         else {
             try {
-                administratorsDAO.remove(administrator.getId());
+                administratorsDAO.remove(administrator);
+                GenericDAO<Users> usersDAO = new GenericDAO<>("Users",new Users());
+                usersDAO.remove(usersDAO.getById(administrator.getUserId()));
             } catch (Exception e) {
-                System.out.println("Remove all other connections first" );
+                System.out.println("Remove all other connections first");
             }
         }
         administratorsDAO.closeAllDAOConnections();

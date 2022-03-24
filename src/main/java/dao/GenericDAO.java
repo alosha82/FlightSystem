@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 public class GenericDAO<T extends IEntities>
 {
-    private String dataBaseName="FlightSystem";
+    private String dataBaseName="Flight System";
     private String tableName;
     private T entityType;
     private ArrayList<T> arrayOfEntityType;
@@ -35,7 +35,8 @@ public class GenericDAO<T extends IEntities>
      * Returns: Arraylist of the DAO's type(entity)  */
     public ArrayList<T> getAll()
     {
-        return  executeQueryAndSaveInTheProperEntity("select * from "+quote(tableName),entityType);
+        arrayOfEntityType=executeQueryAndSaveInTheProperEntity("select * from "+quote(tableName),entityType);
+        return arrayOfEntityType;
     }
     @SneakyThrows
     /** Executes an SQL function.
@@ -98,9 +99,9 @@ public class GenericDAO<T extends IEntities>
     }
     /** Removes a line from the table by its id.
      * Will fail if the entity in the table has somebody pointing to it  */
-    public void remove(long id) throws Exception
+    public void remove(T typeOfEntity) throws Exception
     {
-        stm.executeUpdate("DELETE from "+quote(tableName)+" WHERE "+quote("Id")+"="+id);
+        stm.executeUpdate("DELETE from "+quote(tableName)+" WHERE "+quote("Id")+"="+typeOfEntity.getId());
         System.out.println("done");
     }
     @SneakyThrows

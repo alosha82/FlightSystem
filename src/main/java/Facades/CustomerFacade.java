@@ -47,6 +47,8 @@ public class CustomerFacade extends AnonymousFacade
         }
         ticketsDAO.add(ticket);
         Flights flightOfTheTicket = flightsDAO.getByFieldType(""+ticket.getFlightId(),"Id");
+        if (flightOfTheTicket.getRemainingTickets()<=0)
+            throw new Exception("The flight is full. There are no more seats available");
         flightOfTheTicket.setRemainingTickets(flightOfTheTicket.getRemainingTickets()-1);
         flightsDAO.update(flightOfTheTicket,flightOfTheTicket.getId());
         flightsDAO.closeAllDAOConnections();
@@ -63,7 +65,7 @@ public class CustomerFacade extends AnonymousFacade
             System.out.println("Id must be provided inside the ticket. No removal was made in the DataBase");
         else
         {
-            ticketsDAO.remove(ticket.getId());
+            ticketsDAO.remove(ticket);
             Flights flightOfTheTicket = flightsDAO.getByFieldType(""+ticket.getFlightId(),"Id");
             flightOfTheTicket.setRemainingTickets(flightOfTheTicket.getRemainingTickets()+1);
             flightsDAO.update(flightOfTheTicket,flightOfTheTicket.getId());

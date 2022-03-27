@@ -3,11 +3,14 @@ package entities;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.SneakyThrows;
+import lombok.ToString;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 
 @Getter
 @EqualsAndHashCode
@@ -20,7 +23,7 @@ public class Flights implements IEntities
     private Timestamp departureTime;
     private Timestamp landingTime;
     private Integer remainingTickets;
-    private ArrayList<String> columnNames=new ArrayList<>();
+    private HashSet<String> columnNames=new HashSet<>();
 
     public Flights()
     {
@@ -111,21 +114,21 @@ public class Flights implements IEntities
 
     /**Returns list of values that were set in string format.
      *columnNames initiated with ia Id column as a placeholder*/
-    public ArrayList<String> getAllNeededValuesExceptIdInStringFormat()
+    public LinkedHashMap<String,String>  getAllNeededValuesExceptIdInStringFormat()
     {
-        ArrayList<String> getterArray = new ArrayList<>();
+        LinkedHashMap<String,String> getterArray = new LinkedHashMap<>();
         if(columnNames.contains("Airline_Company_Id"))
-            getterArray.add(""+getAirlineCompanyId());
+            getterArray.put("Airline_Company_Id",""+getAirlineCompanyId());
         if(columnNames.contains("Origin_Country_Id"))
-            getterArray.add(""+getOriginCountryId());
+            getterArray.put("Origin_Country_Id",""+getOriginCountryId());
         if(columnNames.contains("Destination_Country_Id"))
-            getterArray.add(""+getDestinationCountryId());
+            getterArray.put("Destination_Country_Id",""+getDestinationCountryId());
         if(columnNames.contains("Departure_Time"))
-            getterArray.add("\'"+getDepartureTime()+"\'");
+            getterArray.put("Departure_Time","\'"+getDepartureTime()+"\'");
         if(columnNames.contains("Landing_Time"))
-            getterArray.add("\'"+getLandingTime()+"\'");
+            getterArray.put("Landing_Time","\'"+getLandingTime()+"\'");
         if(columnNames.contains("Remaining_Tickets"))
-            getterArray.add(""+getRemainingTickets());
+            getterArray.put("Remaining_Tickets",""+getRemainingTickets());
         return getterArray;
     }
 

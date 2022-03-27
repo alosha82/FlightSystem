@@ -5,21 +5,21 @@ import entities.Customers;
 import entities.Flights;
 import entities.Tickets;
 import logintoken.LoginToken;
-import lombok.Getter;
 import org.apache.commons.math3.util.Pair;
 
 import java.util.*;
 
-@Getter
+
 public class CustomerFacade extends AnonymousFacade
 {
 
-    LoginToken token;
+    private LoginToken token;
     public CustomerFacade(LoginToken loginToken)
     {
         this.token = loginToken;
     }
 
+    /**Updates customer.*/
     public void updateCustomer (Customers customer)throws Exception
     {
         if (this.token.getId()!=customer.getId())
@@ -31,7 +31,7 @@ public class CustomerFacade extends AnonymousFacade
             customersDAO.update(customer,customer.getId());
         customersDAO.closeAllDAOConnections();
     }
-
+    /**Adds ticket and decrements remaining tickets in the proper flight.*/
     public void addTicket(Tickets ticket) throws Exception
     {
         if (token.getId()!=ticket.getCostumersId())
@@ -54,7 +54,7 @@ public class CustomerFacade extends AnonymousFacade
         flightsDAO.closeAllDAOConnections();
         ticketsDAO.closeAllDAOConnections();
     }
-
+    /**Removes ticket and increments remaining tickets in the proper flight.*/
     public void removeTicket(Tickets ticket) throws Exception
     {
         if (token.getId()!=ticket.getCostumersId())
@@ -74,39 +74,38 @@ public class CustomerFacade extends AnonymousFacade
         ticketsDAO.closeAllDAOConnections();
     }
 
-    /**Implementation of this method uses joinMultipleByWithWhereClause.*/
-    public ArrayList<Flights>getFlightsByCustomer(Customers customer)
+    /**Implementation of this method uses joinMultipleByWithWhereClause.
+     Get flights by the customer id*/
+    public ArrayList<Flights>getFlightsByCustomer(Customers customer)throws Exception
     {
+        if (token.getId()!=customer.getId())
+            throw new Exception("You can not remove tickets of another customer");
         ArrayList<Flights> flights;
         Map<String,Collection<String>> tablesToColumnsMap=new HashMap<>();
         GenericDAO<Flights> flightDAO = new GenericDAO<>("Flights",new Flights());
         tablesToColumnsMap.put("Flights", List.of("Id", "Airline_Company_Id","Origin_Country_Id","Destination_Country_Id"
-                ,"Departure_time","Landing_time","Remaining_Tickets"));
+                ,"Departure_Time","Landing_Time","Remaining_Tickets"));
         LinkedHashMap<Pair<String,String>,Pair<String,String>> foreignsToOrigins=new LinkedHashMap<>();
         foreignsToOrigins.put(new Pair<>("Tickets", "Flight_Id"), new Pair<>("Flights", "Id"));
         foreignsToOrigins.put(new Pair<>("Customers", "Id"),new Pair<>("Tickets", "Customer_Id"));
         String whereClose = "WHERE \"Customers\".\"Id\" = "+ customer.getId();
-        flights =flightDAO.joinMultipleByWithWhereClause(tablesToColumnsMap,"Tickets",foreignsToOrigins,new Flights(),whereClose);
+        flights =flightDAO.joinMultipleByWithWhereClause(tablesToColumnsMap,"Flights",foreignsToOrigins,new Flights(),whereClose);
         flightDAO.closeAllDAOConnections();
         return flights;
     }
 
-    /**Joins Tickets with Customers and filters the joined entity by Customers.Id*/
+    /**Joins Tickets with Customers and filters the joined entity by Customers.Id
+     get tickets for the customer*/
     public ArrayList<Tickets> getMyTickets() throws Exception
     {
         ArrayList<Tickets> tickets;
         GenericDAO<Tickets> ticketsDAO = new GenericDAO<>("Tickets",new Tickets());
-        ArrayList<ArrayList<String>> columns = new ArrayList<>();
-        columns.add(new ArrayList<>());
-        columns.get(0).add("Id");
-        columns.get(0).add("Flight_Id");
-        columns.get(0).add("Customer_Id");
         Map<String, Collection<String>> tablesToColumnsMap=new HashMap<>();
         tablesToColumnsMap.put("Tickets", List.of("Id", "Flight_Id","Customer_Id"));
         if (token.getId()==null)
         {
             ticketsDAO.closeAllDAOConnections();
-            throw new Exception("Id must be provided inside the customer. Can not get tickets from DataBase");
+            throw new Exception("Id must be provided inside the token. Can not get tickets from DataBase");
         }
         else
         {

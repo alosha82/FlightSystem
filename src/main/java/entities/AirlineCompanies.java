@@ -2,12 +2,13 @@ package entities;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-
 import lombok.SneakyThrows;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 
 @Getter
 @EqualsAndHashCode
@@ -17,7 +18,7 @@ public class AirlineCompanies implements IEntities
     private String name;
     private Integer countryId;
     private Long userId;
-    private ArrayList<String> columnNames=new ArrayList<>();
+    private HashSet<String> columnNames=new HashSet<>();
 
     public AirlineCompanies()
     {
@@ -36,6 +37,7 @@ public class AirlineCompanies implements IEntities
         if(airlineCompany.getUserId()!=null)
             setUserId(airlineCompany.getUserId());
     }
+
 
     public void setId(long id)
     {
@@ -83,15 +85,15 @@ public class AirlineCompanies implements IEntities
     }
     /**Returns list of values that were set in string format.
      *columnNames initiated with ia Id column as a placeholder*/
-    public ArrayList<String> getAllNeededValuesExceptIdInStringFormat()
+    public LinkedHashMap<String,String> getAllNeededValuesExceptIdInStringFormat()
     {
-        ArrayList<String> getterArray = new ArrayList<>();
+        LinkedHashMap<String,String> getterArray = new LinkedHashMap<>();
         if (columnNames.contains("Name"))
-            getterArray.add(getName());
+            getterArray.put("Name",getName());
         if (columnNames.contains("Country_Id"))
-            getterArray.add(""+getCountryId());
+            getterArray.put("Country_Id",""+getCountryId());
         if (columnNames.contains("User_Id"))
-            getterArray.add(""+getUserId());
+            getterArray.put("User_Id",""+getUserId());
         return getterArray;
     }
     @Override

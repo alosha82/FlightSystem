@@ -7,6 +7,8 @@ import lombok.SneakyThrows;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 
 @Getter
 @EqualsAndHashCode
@@ -19,7 +21,7 @@ public class Customers implements IEntities
     private String phoneNumber;
     private String creditCardNumber;
     private Long userId;
-    private ArrayList<String> columnNames=new ArrayList<>();
+    private HashSet<String> columnNames=new HashSet<>();
 
     public Customers()
     {
@@ -131,21 +133,21 @@ public class Customers implements IEntities
 
     /**Returns list of values that were set in string format.
      *columnNames initiated with ia Id column as a placeholder*/
-    public ArrayList<String> getAllNeededValuesExceptIdInStringFormat()
+    public LinkedHashMap<String,String> getAllNeededValuesExceptIdInStringFormat()
     {
-        ArrayList<String> getterArray = new ArrayList<>();
+        LinkedHashMap<String,String> getterArray = new LinkedHashMap<>();
         if(columnNames.contains("First_Name"))
-            getterArray.add(getFirstName());
+            getterArray.put("First_Name",getFirstName());
         if(columnNames.contains("Last_Name"))
-            getterArray.add(getLastName());
+            getterArray.put("Last_Name",getLastName());
         if(columnNames.contains("Address"))
-            getterArray.add(getAddress());
+            getterArray.put("Address",getAddress());
         if(columnNames.contains("Phone_No"))
-            getterArray.add(getPhoneNumber());
+            getterArray.put("Phone_No",getPhoneNumber());
         if(columnNames.contains("Credit_Card_No"))
-            getterArray.add(getCreditCardNumber());
+            getterArray.put("Credit_Card_No",getCreditCardNumber());
         if(columnNames.contains("User_Id"))
-            getterArray.add(""+getUserId());
+            getterArray.put("User_Id",""+getUserId());
         return getterArray;
     }
 

@@ -7,6 +7,8 @@ import lombok.SneakyThrows;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 
 @Getter
 @EqualsAndHashCode
@@ -14,7 +16,7 @@ public class Countries implements IEntities
 {
     private Integer id;
     private String name;
-    private ArrayList<String> columnNames=new ArrayList<>();
+    private HashSet<String> columnNames=new HashSet<>();
 
     public Countries()
     {
@@ -25,9 +27,13 @@ public class Countries implements IEntities
     {
         columnNames.add("Id");
         if(country.getId()!=null)
-            setId(country.getId());
+            setId(Math.toIntExact(country.getId()));
         if(country.getName()!=null)
             setName(country.getName().replace("\'",""));
+    }
+
+    public Long getId() {
+        return Long.parseLong(""+id);
     }
 
     public void setId(int id) {
@@ -61,11 +67,11 @@ public class Countries implements IEntities
 
     /**Returns list of values that were set in string format.
      *columnNames initiated with ia Id column as a placeholder*/
-    public ArrayList<String> getAllNeededValuesExceptIdInStringFormat()
+    public LinkedHashMap<String,String> getAllNeededValuesExceptIdInStringFormat()
     {
-        ArrayList<String> getterArray = new ArrayList<>();
+        LinkedHashMap<String,String> getterArray = new LinkedHashMap<>();
         if (columnNames.contains("Name"))
-            getterArray.add(getName());
+            getterArray.put("Name",getName());
         return getterArray;
     }
 

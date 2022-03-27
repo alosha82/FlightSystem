@@ -1,0 +1,100 @@
+jdbc:postgresql://localhost:5432/"+dataBaseName,"postgres",password)
+dataBaseName="FlightSystem"
+password=1
+
+get_airline_by_username
+BEGIN
+	RETURN QUERY
+	SELECT "Airline_Companies"."Id",
+	"Airline_Companies"."Name",
+	"Airline_Companies"."Country_Id"
+	from "Airline_Companies"
+	join "Users" on "Airline_Companies"."User_Id" = "Users"."Id"
+	WHERE "Username"=_username;
+END;
+
+get_arrival_flights
+BEGIN
+	RETURN QUERY
+        SELECT "Flights"."Id",
+        "Flights"."Airline_Company_Id",
+        "Flights"."Origin_Country_Id",
+        "Flights"."Destination_Country_Id",
+        "Flights"."Departure_Time",
+        "Flights"."Landing_Time",
+        "Flights"."Remaining_Tickets" from "Flights"
+	 	WHERE "Destination_Country_Id"=_country_id
+        AND ("Flights"."Landing_Time" BETWEEN NOW() AND NOW() + INTERVAL '12 HOURS');
+END;
+
+get_customer_by_username
+BEGIN
+	RETURN QUERY
+	SELECT "Customers"."Id","Customers"."First_Name","Customers"."Last_Name","Customers"."Address","Customers"."Phone_No","Customers"."Credit_Card_No" from "Customers"
+	join "Users" on "Customers"."User_Id"="Users"."Id"
+	WHERE "Username"=_username;
+END;
+
+get_departure_flights
+BEGIN
+	RETURN QUERY
+        SELECT "Flights"."Id",
+        "Flights"."Airline_Company_Id",
+        "Flights"."Origin_Country_Id",
+        "Flights"."Destination_Country_Id",
+        "Flights"."Departure_Time",
+        "Flights"."Landing_Time",
+        "Flights"."Remaining_Tickets" from "Flights"
+	 	WHERE "Origin_Country_Id"=_country_id
+        AND ("Flights"."Departure_Time" BETWEEN NOW() AND NOW() + INTERVAL '12 HOURS');
+END;
+
+get_flights_by_airline_id
+BEGIN
+	RETURN QUERY
+        SELECT "Flights"."Id",
+        "Flights"."Airline_Company_Id",
+        "Flights"."Origin_Country_Id",
+        "Flights"."Destination_Country_Id",
+        "Flights"."Departure_Time",
+        "Flights"."Landing_Time",
+        "Flights"."Remaining_Tickets"
+        from "Flights"
+		JOIN "Airline_Companies" ON "Flights"."Airline_Company_Id" = "Airline_Companies"."Id"
+	 	WHERE "Airline_Companies"."Id"=_airline_id;
+END;
+
+get_flights_by_parameters
+BEGIN
+	RETURN QUERY
+        SELECT "Flights"."Id",
+		"Flights"."Airline_Company_Id"
+		,"Flights"."Origin_Country_Id"
+		,"Flights"."Destination_Country_Id"
+		,"Flights"."Departure_Time"
+		,"Flights"."Landing_Time"
+		,"Flights"."Remaining_Tickets" from "Flights"
+	 	WHERE ("Departure_Time"=_date OR "Landing_Time"=_date) AND ("Origin_Country_Id"= _origin_coutnry_id)AND ("Destination_Country_Id"=_destination_country_id);
+END;
+
+get_tickets_by_customer
+BEGIN
+	RETURN QUERY
+        SELECT "Tickets"."Id","Tickets"."Flight_Id","Tickets"."Customer_Id" from "Tickets"
+	 	WHERE  "Tickets"."Customer_Id"=_customer_id;
+END;
+
+get_user_by_username1
+BEGIN
+	RETURN QUERY
+	 SELECT "Users"."Id","Users"."Username","Users"."Password","Users"."Email","User_Roles"."Role_Name" from "Users"
+        join "User_Roles" on "Users"."User_Role"="User_Roles"."Id"
+	 	WHERE "Username"=_username;
+END;
+
+get_user_by_username
+BEGIN
+	RETURN QUERY
+        SELECT * from "Users"
+		WHERE "Users"."Username"=_username;
+END;

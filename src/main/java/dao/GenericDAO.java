@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 public class GenericDAO<T extends IEntities>
 {
-    private String dataBaseName="Flight System";
+    private String dataBaseName="FlightSystem";
     private String tableName;
     private T entityType;
     private ArrayList<T> arrayOfEntityType;
@@ -35,7 +35,13 @@ public class GenericDAO<T extends IEntities>
      * Returns: Arraylist of the DAO's type(entity)  */
     public ArrayList<T> getAll()
     {
-        arrayOfEntityType=executeQueryAndSaveInTheProperEntity("select * from "+quote(tableName),entityType);
+        arrayOfEntityType=getAllWithWhereClause("");
+        return arrayOfEntityType;
+    }
+    public ArrayList<T> getAllWithWhereClause(String whereClause)
+    {
+
+        arrayOfEntityType=executeQueryAndSaveInTheProperEntity("select * from "+quote(tableName)+" "+whereClause,entityType);
         return arrayOfEntityType;
     }
     @SneakyThrows
@@ -64,6 +70,7 @@ public class GenericDAO<T extends IEntities>
             stringToExecute=stringToExecute+properlyFormattedParameters.get(i)+",";
         }
         stringToExecute = stringToExecute.substring(0,stringToExecute.length()-1);
+        System.out.println(stringToExecute);
         return executeQueryAndSaveInTheProperEntity(stringToExecute+")",typeOfEntity);
     }
 
@@ -80,12 +87,19 @@ public class GenericDAO<T extends IEntities>
      * Returns:  DAO's type(entity)  */
     public T getByFieldType(String formattedByPostgresSQLStandardsParameter,String fieldName)
     {
-        ResultSet result= stm.executeQuery("select * from "+quote(tableName)+" WHERE "+quote(fieldName)+"="+formattedByPostgresSQLStandardsParameter);
+        Cloner cloner = new Cloner();
+        String tempString="";
+        if (fieldName.contains("("))
+            tempString=fieldName;
+        else
+            tempString=quote(fieldName);
+        ResultSet result= stm.executeQuery("select * from "+quote(tableName)+" WHERE "+tempString+"="+formattedByPostgresSQLStandardsParameter);
         //needed because it starts on wrong column
         result.next();
         entityType.setAll(result);
+        T clone = cloner.shallowClone(entityType);
         result.close();
-        return entityType;
+        return clone;
     }
 
     @SneakyThrows
@@ -93,7 +107,13 @@ public class GenericDAO<T extends IEntities>
      * Returns: Arraylist of the DAO's type(entity)  */
     public ArrayList<T> getByFieldTypeArr(String formattedByPostgresSQLStandardsParameter,String fieldName)
     {
-        String stringToExecute ="select * from "+quote(tableName)+" WHERE "+quote(fieldName)+"="+formattedByPostgresSQLStandardsParameter;
+        /**checks if fieldName has a modifier like DATE for example*/
+        String tempString="";
+        if (fieldName.contains("("))
+            tempString=fieldName;
+        else
+            tempString=quote(fieldName);
+        String stringToExecute ="select * from "+quote(tableName)+" WHERE "+tempString+"="+formattedByPostgresSQLStandardsParameter;
         // might be a problem because the entityType might already have values.(might be problematic if the table has null fields. not sure)
         return executeQueryAndSaveInTheProperEntity(stringToExecute,entityType);
     }
@@ -109,36 +129,22 @@ public class GenericDAO<T extends IEntities>
      * Will fail if the entity has the same values for the columns marked unique  */
     public void add(T typeOfEntity)
     {
-        ArrayList<String> fieldsInStringForm = typeOfEntity.getAllNeededValuesExceptIdInStringFormat();
-        ArrayList<String> columnNames = typeOfEntity.getColumnNames();
-        //INSERT INTO Administrators (first_name,last_name,user_id) VALUES (
-        String stringForExecution = "INSERT INTO "+quote(tableName)+" (";
-        for (int i = 1; i < columnNames.size(); i++)
-        {
-            stringForExecution=stringForExecution+quote(columnNames.get(i))+",";
-        }
-        stringForExecution = stringForExecution.substring(0,stringForExecution.length()-1);
-        stringForExecution = stringForExecution+") VALUES (";
-        for (int i = 0; i < fieldsInStringForm.size(); i++)
-        {
-            stringForExecution=stringForExecution+fieldsInStringForm.get(i)+",";
-        }
-        stringForExecution = stringForExecution.substring(0,stringForExecution.length()-1);
-        stm.executeUpdate(stringForExecution+")");
+        LinkedHashMap<String,String>  fieldsAndValuesInStringForm = typeOfEntity.getAllNeededValuesExceptIdInStringFormat();
+        String stringForExecution = "INSERT INTO "+quote(tableName)+" ("
+                + fieldsAndValuesInStringForm.keySet().stream().map(this::quote).collect(Collectors.joining(","))
+                +") VALUES (" + String.join(",", fieldsAndValuesInStringForm.values()) + ")";
+        System.out.println(stringForExecution);
+        stm.executeUpdate(stringForExecution);
     }
     @SneakyThrows
     /** Updates an entity to the table.
      * Can fail*/
     public void update(T typeOfEntity,long id)
     {
-        ArrayList<String> columnNames = typeOfEntity.getColumnNames();
-        ArrayList<String> fieldsInStringForm = typeOfEntity.getAllNeededValuesExceptIdInStringFormat();
+        LinkedHashMap<String,String>  fieldsAndValuesInStringForm = typeOfEntity.getAllNeededValuesExceptIdInStringFormat();
         String stringForUpdate ="UPDATE "+quote(tableName)+" SET ";
-        for (int i = 0; i < fieldsInStringForm.size(); i++)
-        {
-            stringForUpdate=stringForUpdate + quote(columnNames.get(i+1))+"="+fieldsInStringForm.get(i)+",";
-        }
-        stringForUpdate = stringForUpdate.substring(0,stringForUpdate.length()-1);
+        stringForUpdate = stringForUpdate+ fieldsAndValuesInStringForm.entrySet().stream().map((K)-> quote(K.getKey())+"="+K.getValue())
+                .collect(Collectors.joining(","));
         System.out.println(stringForUpdate);
         stm.executeUpdate(stringForUpdate+" WHERE "+quote("Id")+"="+id);
     }
@@ -201,7 +207,7 @@ public class GenericDAO<T extends IEntities>
         while(result.next())
         {
             typeOfEntity.setAll(result);
-            V clone = cloner.deepClone(typeOfEntity);
+            V clone = cloner.shallowClone(typeOfEntity);
             ArrayListOfTypeOfEntity.add(clone);
         }
         result.close();
@@ -333,6 +339,7 @@ public class GenericDAO<T extends IEntities>
                                                                             String whereClause)
     {
         String query = generateJoinMultipleByQuery(tablesToColumnsTODisplayMap,from,foreignFieldToOriginalField,whereClause);
+        System.out.println(query);
         return executeQueryAndSaveInTheProperEntity(query,typeOfEntity);
     }
 

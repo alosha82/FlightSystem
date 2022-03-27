@@ -2,21 +2,21 @@ package entities;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.SneakyThrows;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 
 @Getter
-@Setter
 @EqualsAndHashCode
 public class UserRoles implements IEntities
 {
     private Integer id;
     private String roleName;
-    private ArrayList<String> columnNames=new ArrayList<>();
+    private HashSet<String> columnNames=new HashSet<>();
 
     public UserRoles()
     {
@@ -26,9 +26,13 @@ public class UserRoles implements IEntities
     public UserRoles(UserRoles userRole) {
         columnNames.add("Id");
         if(userRole.getId()!=null)
-            setId(userRole.getId());
+            setId(Math.toIntExact(userRole.getId()));
         if(userRole.getRoleName()!=null)
             setRoleName(userRole.getRoleName());
+    }
+
+    public Long getId() {
+        return Long.parseLong(""+id);
     }
 
     public void setId(int id) {
@@ -62,11 +66,11 @@ public class UserRoles implements IEntities
 
     /**Returns list of values that were set in string format.
      *columnNames initiated with ia Id column as a placeholder*/
-    public ArrayList<String> getAllNeededValuesExceptIdInStringFormat()
+    public LinkedHashMap<String,String> getAllNeededValuesExceptIdInStringFormat()
     {
-        ArrayList<String> getterArray = new ArrayList<>();
+        LinkedHashMap<String,String> getterArray = new LinkedHashMap<>();
         if(columnNames.contains("Role_Name"))
-            getterArray.add(getRoleName());
+            getterArray.put("Role_Name",""+getRoleName());
         return getterArray;
     }
 

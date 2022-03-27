@@ -1,6 +1,8 @@
 package Facades;
 
 import dao.GenericDAO;
+import entities.Administrators;
+import entities.AirlineCompanies;
 import entities.Customers;
 import entities.Users;
 import logintoken.LoginToken;
@@ -26,36 +28,50 @@ public class AnonymousFacade extends FacadeBase
         if (joined.next())
         {
             LoginToken loginToken = new LoginToken();
-            loginToken.setId(joined.getLong("Id"));
             loginToken.setName(username);
             loginToken.setRole(joined.getString("Role_Name"));
+            long userId = joined.getLong("Id");
             String role = joined.getString("Role_Name");
             joined.close();
             switch(role)
             {
                 case("Administrator")->
                         {
+                            GenericDAO<Administrators> administratorsDAO=new GenericDAO<>("Administrators",new Administrators());
+                            loginToken.setId(administratorsDAO.getByFieldType(""+userId,"User_Id").getId());
                             return new AdministratorFacade(loginToken);
                         }
                 case("Customer")->
                         {
+                            GenericDAO<Customers> customersDAO=new GenericDAO<>("Customers",new Customers());
+                            loginToken.setId(customersDAO.getByFieldType(""+userId,"User_Id").getId());
                             return new CustomerFacade(loginToken);
                         }
-                case("AirLine")->
+                case("Airline_Company")->
                         {
+                            GenericDAO<AirlineCompanies> airlineCompaniesDAO=new GenericDAO<>("Airline_Companies",new AirlineCompanies());
+                            loginToken.setId(airlineCompaniesDAO.getByFieldType(""+userId,"User_Id").getId());
                             return new AirlineFacade(loginToken);
                         }
-                default -> throw new Exception("Unknown role name in the database");
+                default -> throw new Exception("Unknown role name in the database.");
             }
         }
         else
         {
-            throw new Exception("No Such username or password found in database");
+            throw new Exception("No Such username or password found in database.");
         }
     }
 
-    public void addCustomer(Users user, Customers customer)
+    /**Adds customer and its user entity*/
+    public void addCustomer(Users user, Customers customer)throws Exception
     {
+        String password= user.getPassword();
+        if(password.contains(" "))
+            throw new Exception("Spaces are not allowed in the password.");
+        if(password.length()<7)
+            throw new Exception("Your password is to short. Can not add such a user with that kind of insecure password to the database.");
+        if((user.getEmail().charAt(0) == '@')||(user.getEmail().charAt(0) == ' ') || !(user.getEmail().contains("@")))
+            throw new Exception("Invalid Email.");
         createNewUser(user,customer);
     }
 }

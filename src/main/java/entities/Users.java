@@ -7,6 +7,8 @@ import lombok.SneakyThrows;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 
 @Getter
 @EqualsAndHashCode
@@ -17,7 +19,7 @@ public class Users implements IEntities
     private String password;
     private String email;
     private Integer userRole;
-    private ArrayList<String> columnNames=new ArrayList<>();
+    private HashSet<String> columnNames=new HashSet<>();
 
     public Users()
     {
@@ -98,18 +100,21 @@ public class Users implements IEntities
         setPassword(result.getString(columnNames.get(i++)));
         setEmail(result.getString(columnNames.get(i++)));
         setUserRole(result.getInt(columnNames.get(i++)));
-        this.columnNames=columnNames;
     }
 
     /**Returns list of values that were set in string format.
      *columnNames initiated with ia Id column as a placeholder*/
-    public ArrayList<String> getAllNeededValuesExceptIdInStringFormat()
+    public LinkedHashMap<String,String> getAllNeededValuesExceptIdInStringFormat()
     {
-        ArrayList<String> getterArray = new ArrayList<>();
-        getterArray.add(getUserName());
-        getterArray.add(getPassword());
-        getterArray.add(getEmail());
-        getterArray.add(""+getUserRole());
+        LinkedHashMap<String,String> getterArray = new LinkedHashMap<>();
+        if (columnNames.contains("Username"))
+            getterArray.put("Username",getUserName());
+        if (columnNames.contains("Password"))
+            getterArray.put("Password",getPassword());
+        if (columnNames.contains("Email"))
+            getterArray.put("Email",getEmail());
+        if (columnNames.contains("User_Role"))
+            getterArray.put("User_Role",""+getUserRole());
         return getterArray;
     }
 

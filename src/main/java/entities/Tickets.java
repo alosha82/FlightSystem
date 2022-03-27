@@ -7,6 +7,8 @@ import lombok.SneakyThrows;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 
 
 @Getter
@@ -16,7 +18,7 @@ public class Tickets implements IEntities
     private Long id;
     private Long flightId;
     private Long costumersId;
-    private ArrayList<String> columnNames=new ArrayList<>();
+    private HashSet<String> columnNames=new HashSet<>();
 
     public Tickets()
     {
@@ -47,8 +49,8 @@ public class Tickets implements IEntities
     public void setCostumersId(long costumersId)
     {
         this.costumersId = costumersId;
-        if(!columnNames.contains("Costumers_Id"))
-            columnNames.add("Costumers_Id");
+        if(!columnNames.contains("Customer_Id"))
+            columnNames.add("Customer_Id");
     }
 
     @SneakyThrows
@@ -68,13 +70,13 @@ public class Tickets implements IEntities
 
     /**Returns list of values that were set in string format.
      *columnNames initiated with ia Id column as a placeholder*/
-    public ArrayList<String> getAllNeededValuesExceptIdInStringFormat()
+    public LinkedHashMap<String,String> getAllNeededValuesExceptIdInStringFormat()
     {
-        ArrayList<String> getterArray = new ArrayList<>();
+        LinkedHashMap<String,String> getterArray = new LinkedHashMap<>();
         if(columnNames.contains("Flight_Id"))
-            getterArray.add(""+getFlightId());
-        if(columnNames.contains("Costumers_Id"))
-            getterArray.add(""+getCostumersId());
+            getterArray.put("Flight_Id",""+getFlightId());
+        if(columnNames.contains("Customer_Id"))
+            getterArray.put("Customer_Id",""+getCostumersId());
         return getterArray;
     }
 

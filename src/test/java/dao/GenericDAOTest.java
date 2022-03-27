@@ -1,9 +1,7 @@
 package dao;
 
 
-import entities.Flights;
-import entities.UserRoles;
-import entities.Users;
+import entities.*;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.jupiter.api.Test;
@@ -11,6 +9,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import org.apache.commons.math3.util.Pair;
+
+import java.sql.Timestamp;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -67,6 +67,8 @@ class GenericDAOTest {
         val userRolesForTest = new UserRoles();
         userRolesForTest.setId(1);
         userRolesForTest.setRoleName("Administrator");
+        System.out.println(userRoles);
+        System.out.println(userRolesForTest);
         assertEquals(userRoles,userRolesForTest);
     }
 
@@ -100,35 +102,58 @@ class GenericDAOTest {
     @SneakyThrows
     void remove()
     {
-        UserRoles userRoles;
-        GenericDAO<UserRoles> userRolesDAO=new GenericDAO<>("User_Roles",new UserRoles());
-        //userRolesDAO.remove(10);
+        GenericDAO<Users> usersDAO=new GenericDAO<>("Users",new Users());
+        Users newUserToAdd1 = new Users();
+        newUserToAdd1.setId(4);
+        newUserToAdd1.setUserName("createfromnewuser1");
+        newUserToAdd1.setPassword("11111111");
+        newUserToAdd1.setEmail("u@t1");
+        newUserToAdd1.setUserRole(1);
+        Users newUserToAdd2 = new Users();
+        newUserToAdd2.setId(8);
+        newUserToAdd2.setUserName("createfromnewuser2");
+        newUserToAdd2.setPassword("11111112");
+        newUserToAdd2.setEmail("u@t2");
+        newUserToAdd2.setUserRole(2);
+        Users newUserToAdd3 = new Users();
+        newUserToAdd3.setId(9);
+        newUserToAdd3.setUserName("createfromnewuser3");
+        newUserToAdd3.setPassword("11111113");
+        newUserToAdd3.setEmail("u@t3");
+        newUserToAdd3.setUserRole(3);
+        usersDAO.remove(newUserToAdd1);
+        usersDAO.remove(newUserToAdd2);
+        usersDAO.remove(newUserToAdd3);
     }
 
     @org.junit.jupiter.api.Test
     void add()
     {
-        UserRoles userRoles;
-        GenericDAO<UserRoles> userRolesDAO=new GenericDAO<>("User_Roles",new UserRoles());
-        val userRolesForTest = new UserRoles();
-        userRolesForTest.setId(10);
-        userRolesForTest.setRoleName("Administrator4");
-        userRolesDAO.add(userRolesForTest);
-        userRoles = userRolesDAO.getById(10);
-        assertEquals(userRoles,userRolesForTest);
+        val flightsForTest = new Flights();
+        flightsForTest.setId(4l);
+        flightsForTest.setOriginCountryId(1);
+        flightsForTest.setDestinationCountryId(2);
+        flightsForTest.setAirlineCompanyId(1l);
+        flightsForTest.setDepartureTime(Timestamp.valueOf("2022-03-26 23:10:25"));
+        flightsForTest.setLandingTime(Timestamp.valueOf("2022-03-26 12:10:25"));
+        flightsForTest.setRemainingTickets(100);
+        GenericDAO<Flights> flightsDAO=new GenericDAO<>("Flights",new Flights());
+        flightsDAO.add(flightsForTest);
     }
 
     @org.junit.jupiter.api.Test
     void update()
     {
-        UserRoles userRoles;
-        GenericDAO<UserRoles> userRolesDAO= new GenericDAO<>("User_Roles",new UserRoles());
-        val userRolesForTest = new UserRoles();
-        userRolesForTest.setId(1);
-        userRolesForTest.setRoleName("Administrator1");
-        userRolesDAO.update(userRolesForTest,1);
-        userRoles = userRolesDAO.getById(1);
-        assertEquals(userRoles,userRolesForTest);
+        Users newUserToAdd3 = new Users();
+        GenericDAO<Users> x =new GenericDAO<>("Users",new Users());
+        newUserToAdd3.setId(12);
+        newUserToAdd3.setUserName("createfromnewuser3");
+        newUserToAdd3.setPassword("11111114");
+        newUserToAdd3.setEmail("u@t3");
+        newUserToAdd3.setUserRole(3);
+        x.update(newUserToAdd3,newUserToAdd3.getId());
+
+        assertEquals(x.getById(12),newUserToAdd3);
 
     }
 
@@ -142,7 +167,7 @@ class GenericDAOTest {
         foreignsToOrigins.put(new Pair<>("Tickets", "Flight_Id"), new Pair<>("Flights", "Id"));
         foreignsToOrigins.put(new Pair<>("Customers", "Id"),new Pair<>("Tickets", "Customer_Id"));
         String generatedString = t.generateJoinMultipleByQuery(tablesToColumnsMap,"Flights",foreignsToOrigins,"");
-        String stringForTest = "SELECT \"Customers\".\"First_Name\",\"Customers\".\"Last_Name\" FROM \"Flights\" JOIN \"Tickets\" ON \"Tickets\".\"Flight_Id\"=\"Flights\".\"Id\" JOIN \"Customers\" ON \"Customers\".\"Id\"=\"Tickets\".\"Customer_Id\"";
+        String stringForTest = "SELECT \"Customers\".\"First_Name\",\"Customers\".\"Last_Name\" FROM \"Flights\" JOIN \"Tickets\" ON \"Tickets\".\"Flight_Id\"=\"Flights\".\"Id\" JOIN \"Customers\" ON \"Customers\".\"Id\"=\"Tickets\".\"Customer_Id\" ";
         System.out.println(generatedString);
         assertEquals(generatedString,stringForTest);
     }
@@ -152,12 +177,20 @@ class GenericDAOTest {
     {
         ArrayList<Flights> flights;
         Map<String, Collection<String>> tablesToColumnsMap=new HashMap<>();
-        tablesToColumnsMap.put("Customers", List.of("Id", "Airline_Company_Id",
+        tablesToColumnsMap.put("Flights", List.of("Id", "Airline_Company_Id",
                 "Origin_Country_Id","Destination_Country_Id",
                 "Departure_Time","Landing_Time","Remaining_Tickets"));
         GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights",new Flights());
         flights=flightsDAO.joinTwoBy(tablesToColumnsMap,"Origin_Country_Id","Countries","Id",new Flights());
-
+        val flightsForTest = new Flights();
+        flightsForTest.setId(4l);
+        flightsForTest.setOriginCountryId(1);
+        flightsForTest.setDestinationCountryId(2);
+        flightsForTest.setAirlineCompanyId(1l);
+        flightsForTest.setDepartureTime(Timestamp.valueOf("2016-06-21 19:10:25"));
+        flightsForTest.setLandingTime(Timestamp.valueOf("2016-06-22 19:10:25"));
+        flightsForTest.setRemainingTickets(100);
+        assertEquals(flights.get(0),flightsForTest);
     }
 
     @org.junit.jupiter.api.Test
@@ -165,12 +198,22 @@ class GenericDAOTest {
     {
         ArrayList<Flights> flights;
         Map<String, Collection<String>> tablesToColumnsMap=new HashMap<>();
-        tablesToColumnsMap.put("Customers", List.of("Id", "Airline_Company_Id",
+        tablesToColumnsMap.put("Flights", List.of("Id", "Airline_Company_Id",
                 "Origin_Country_Id","Destination_Country_Id",
                 "Departure_Time","Landing_Time","Remaining_Tickets"));
         GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights",new Flights());
         flights=flightsDAO.joinTwoByWithWhereClause(tablesToColumnsMap,"Origin_Country_Id",
-                "Countries","Id",new Flights(),"WHERE \"Countries\".\"Id\"="+3);
+                "Countries","Id",new Flights(),"WHERE \"Countries\".\"Id\"="+1);
+        val flightsForTest = new Flights();
+        flightsForTest.setId(4l);
+        flightsForTest.setOriginCountryId(1);
+        flightsForTest.setDestinationCountryId(2);
+        flightsForTest.setAirlineCompanyId(1l);
+        flightsForTest.setDepartureTime(Timestamp.valueOf("2016-06-21 19:10:25"));
+        flightsForTest.setLandingTime(Timestamp.valueOf("2016-06-22 19:10:25"));
+        flightsForTest.setRemainingTickets(100);
+        assertEquals(flights.get(0),flightsForTest);
+
     }
 
     @org.junit.jupiter.api.Test
@@ -179,11 +222,22 @@ class GenericDAOTest {
         ArrayList<Flights> flights;
         GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights",new Flights());
         Map<String, Collection<String>> tablesToColumnsMap=new HashMap<>();
-        tablesToColumnsMap.put("Customers", List.of("First_Name", "Last_Name"));
+        tablesToColumnsMap.put("Flights", List.of("Id", "Airline_Company_Id",
+                "Origin_Country_Id","Destination_Country_Id",
+                "Departure_Time","Landing_Time","Remaining_Tickets"));
         LinkedHashMap<Pair<String,String>,Pair<String,String>> foreignsToOrigins=new LinkedHashMap<>();
         foreignsToOrigins.put(new Pair<>("Tickets", "Flight_Id"), new Pair<>("Flights", "Id"));
         foreignsToOrigins.put(new Pair<>("Customers", "Id"),new Pair<>("Tickets", "Customer_Id"));
         flights=flightsDAO.joinMultipleBy(tablesToColumnsMap,"Flights",foreignsToOrigins,new Flights());
+        val flightsForTest = new Flights();
+        flightsForTest.setId(4l);
+        flightsForTest.setOriginCountryId(1);
+        flightsForTest.setDestinationCountryId(2);
+        flightsForTest.setAirlineCompanyId(1l);
+        flightsForTest.setDepartureTime(Timestamp.valueOf("2016-06-21 19:10:25"));
+        flightsForTest.setLandingTime(Timestamp.valueOf("2016-06-22 19:10:25"));
+        flightsForTest.setRemainingTickets(100);
+        assertEquals(flights.get(0),flightsForTest);
     }
 
     @org.junit.jupiter.api.Test
@@ -192,12 +246,23 @@ class GenericDAOTest {
         ArrayList<Flights> flights;
         GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights",new Flights());
         Map<String, Collection<String>> tablesToColumnsMap=new HashMap<>();
-        tablesToColumnsMap.put("Customers", List.of("First_Name", "Last_Name"));
+        tablesToColumnsMap.put("Flights", List.of("Id", "Airline_Company_Id",
+                "Origin_Country_Id","Destination_Country_Id",
+                "Departure_Time","Landing_Time","Remaining_Tickets"));
         LinkedHashMap<Pair<String,String>,Pair<String,String>> foreignsToOrigins=new LinkedHashMap<>();
         foreignsToOrigins.put(new Pair<>("Tickets", "Flight_Id"), new Pair<>("Flights", "Id"));
         foreignsToOrigins.put(new Pair<>("Customers", "Id"),new Pair<>("Tickets", "Customer_Id"));
         flights=flightsDAO.joinMultipleByWithWhereClause(tablesToColumnsMap,"Flights",
-                foreignsToOrigins,new Flights(),"WHERE \"Customers\".\"Id\"="+3);
+                foreignsToOrigins,new Flights(),"WHERE \"Customers\".\"Id\"="+1);
+        val flightsForTest = new Flights();
+        flightsForTest.setId(4l);
+        flightsForTest.setOriginCountryId(1);
+        flightsForTest.setDestinationCountryId(2);
+        flightsForTest.setAirlineCompanyId(1l);
+        flightsForTest.setDepartureTime(Timestamp.valueOf("2016-06-21 19:10:25"));
+        flightsForTest.setLandingTime(Timestamp.valueOf("2016-06-22 19:10:25"));
+        flightsForTest.setRemainingTickets(100);
+        assertEquals(flights.get(0),flightsForTest);
     }
 
 

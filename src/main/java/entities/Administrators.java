@@ -7,6 +7,8 @@ import lombok.SneakyThrows;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 
 @Getter
 @EqualsAndHashCode
@@ -16,7 +18,7 @@ public class Administrators implements IEntities
     private String firstName;
     private String lastName;
     private Long userId;
-    private ArrayList<String> columnNames=new ArrayList<>();
+    private HashSet<String> columnNames=new HashSet<>();
 
     public Administrators()
     {
@@ -26,13 +28,17 @@ public class Administrators implements IEntities
     public Administrators(Administrators administrators) {
         columnNames.add("Id");
         if(administrators.getId()!=null)
-            setId(administrators.getId());
+            setId(Math.toIntExact(administrators.getId()));
         if(administrators.getFirstName()!=null)
             setFirstName(administrators.getFirstName());
         if(administrators.getLastName()!=null)
-            setLastName(administrators.getLastName().replace("\'",""));
+            setLastName(administrators.getLastName());
         if(administrators.getUserId()!=null)
             setUserId(administrators.getUserId());
+    }
+
+    public Long getId() {
+        return Long.parseLong(""+id);
     }
 
     public void setId(int id)
@@ -85,18 +91,18 @@ public class Administrators implements IEntities
     }
     /**Returns list of values that were set in string format.
      *columnNames initiated with ia Id column as a placeholder*/
-    public ArrayList<String> getAllNeededValuesExceptIdInStringFormat()
+
+    public LinkedHashMap<String,String> getAllNeededValuesExceptIdInStringFormat()
     {
-        ArrayList<String> getterArray = new ArrayList<>();
+        LinkedHashMap<String,String> getterArray = new LinkedHashMap<>();
         if (columnNames.contains("First_Name"))
-            getterArray.add(getFirstName());
+            getterArray.put("First_Name",getFirstName());
         if (columnNames.contains("Last_Name"))
-            getterArray.add(getLastName());
+            getterArray.put("Last_Name",getLastName());
         if (columnNames.contains("User_Id"))
-            getterArray.add(""+getUserId());
+            getterArray.put("User_Id",""+getUserId());
         return getterArray;
     }
-
     @Override
     public String toString() {
         return "id=" + id +

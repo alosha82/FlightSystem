@@ -3,27 +3,28 @@ package Facades;
 import dao.GenericDAO;
 import entities.AirlineCompanies;
 import entities.Flights;
+import entities.Tickets;
 import logintoken.LoginToken;
-import lombok.Getter;
+
 
 
 import java.util.*;
 
-@Getter
+
 public class AirlineFacade extends AnonymousFacade
 {
-    LoginToken token;
+     private LoginToken token;
 
     public AirlineFacade(LoginToken loginToken)
     {
         this.token = loginToken;
     }
-
+    /**Updates Airline.*/
     public void updateAirline (AirlineCompanies airlineCompany) throws Exception
     {
         if (this.token.getId()!=airlineCompany.getId())
             throw new Exception("You can not update other airline companies");
-        GenericDAO<AirlineCompanies> airlineCompaniesDAO = new GenericDAO<>("AirlineCompanies",new AirlineCompanies());
+        GenericDAO<AirlineCompanies> airlineCompaniesDAO = new GenericDAO<>("Airline_Companies",new AirlineCompanies());
         if (airlineCompany.getId()==null)
             System.out.println("Id must be provided inside the airlineCompany. No update was made to the DataBase");
         else
@@ -42,6 +43,7 @@ public class AirlineFacade extends AnonymousFacade
         }
         airlineCompaniesDAO.closeAllDAOConnections();
     }
+    /**Updates Flight.*/
     public void updateFlight (Flights flight) throws Exception
     {
         if (token.getId()!=flight.getAirlineCompanyId())
@@ -70,7 +72,7 @@ public class AirlineFacade extends AnonymousFacade
         }
         flightsDAO.closeAllDAOConnections();
     }
-
+    /**Adds Flight.*/
     public void addFlight(Flights flight) throws Exception
     {
         ArrayList<Flights> flights;
@@ -109,27 +111,47 @@ public class AirlineFacade extends AnonymousFacade
         flightsDAO.add(flight);
         flightsDAO.closeAllDAOConnections();
     }
-
+    /**Removes Flight and its tickets*/
     public void removeFlight(Flights flight) throws Exception
     {
         if (token.getId()!=flight.getAirlineCompanyId())
             throw new Exception("You can not remove flights of another airline company");
+        ArrayList<Tickets> flightTickets;
         GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights",new Flights());
+        GenericDAO<Tickets> ticketsDAO = new GenericDAO<>("Tickets",new Tickets());
         if (flight.getId()==null)
             System.out.println("Id must be provided inside the flight. No removal was made in the DataBase");
         else
-            flightsDAO.remove(flight);
+        {
+            flightTickets=getTicketsByFlight(flight);
+            for (Tickets flightTicket : flightTickets)
+            {
+                try {
+                    ticketsDAO.remove(flightTicket);
+                }catch (Exception e)
+                {
+                    throw new Exception("Was unable to remove the tickets to the flight");
+                }
+            }
+            try {
+                flightsDAO.remove(flight);
+            }catch (Exception e)
+            {
+                throw new Exception("Was unable to remove the the flight.");
+            }
+        }
         flightsDAO.closeAllDAOConnections();
     }
 
-    /**Joins flights with airlineCompanies and filters the joined entity by Airline_Company_Id*/
+    /**Joins flights with airlineCompanies and filters the joined entity by Airline_Company_Id
+     get Flights for the airline*/
     public ArrayList<Flights> getMyFlights() throws Exception
     {
         ArrayList<Flights> flights;
         GenericDAO<Flights> flightsDAO = new GenericDAO<>("Flights",new Flights());
         Map<String, Collection<String>> tablesToColumnsMap=new HashMap<>();
         tablesToColumnsMap.put("Flights", List.of("Id", "Airline_Company_Id","Origin_Country_Id","Destination_Country_Id"
-                ,"Departure_time","Landing_time","Remaining_Tickets"));
+                ,"Departure_Time","Landing_Time","Remaining_Tickets"));
         if (token.getId()==null)
         {
             flightsDAO.closeAllDAOConnections();
@@ -137,7 +159,7 @@ public class AirlineFacade extends AnonymousFacade
         }
         else
         {
-            flights = flightsDAO.joinTwoByWithWhereClause(tablesToColumnsMap,"Airline_Company_Id","AirlineCompanies","Id"
+            flights = flightsDAO.joinTwoByWithWhereClause(tablesToColumnsMap,"Airline_Company_Id","Airline_Companies","Id"
                     ,new Flights(),"WHERE \"Flights\".\"Airline_Company_Id\"="+token.getId());
             flightsDAO.closeAllDAOConnections();
             return flights;
